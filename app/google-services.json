@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "624580061138",
+    "project_id": "elections-app-firebase",
+    "storage_bucket": "elections-app-firebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624580061138:android:a2b36c6bcd088a40e54a0b",
+        "android_client_info": {
+          "package_name": "com.example.openingscreen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQfZTH47nEwsURoCTQizmTlC1UsJNW36s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
