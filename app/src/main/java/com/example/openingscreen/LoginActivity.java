@@ -29,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
+        //setContentView(R.layout.activity_login);
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser != null){ // if user has already login
             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
@@ -41,61 +42,61 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        mAuth = FirebaseAuth.getInstance();
-        editTextEmail = findViewById(R.id.email);
-        editTextPassword = findViewById(R.id.password);
-        progressBar = findViewById(R.id.progressbar);
-        gotosignup = findViewById(R.id.gotosignup);
-
-        gotosignup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-        login_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                progressBar.setVisibility(View.VISIBLE);
-                String email, password;
-                email = String.valueOf(editTextEmail.getText());
-                password = String.valueOf(editTextPassword.getText());
-
-
-                //if the email field is empty shows message
-                if(TextUtils.isEmpty(email)){
-                    Toast.makeText(LoginActivity.this,"Enter email", Toast.LENGTH_SHORT ).show();
-                    return;
-                }
-
-                //if the password field is empty shows message
-                if(TextUtils.isEmpty(password)){
-                    Toast.makeText(LoginActivity.this,"Enter password", Toast.LENGTH_SHORT ).show();
-                    return;
-                }
-
-                mAuth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressBar.setVisibility(View.GONE);
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(LoginActivity.this, "Login successful",
-                                            Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                } else {
-                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-
-            }
-        });
+//
+//        mAuth = FirebaseAuth.getInstance();
+//        editTextEmail = findViewById(R.id.email);
+//        editTextPassword = findViewById(R.id.password);
+//        progressBar = findViewById(R.id.progressbar);
+//        gotosignup = findViewById(R.id.gotosignup);
+//
+//        gotosignup.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+//                startActivity(intent);
+//                finish();
+//            }
+//        });
+//        login_btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                progressBar.setVisibility(View.VISIBLE);
+//                String email, password;
+//                email = String.valueOf(editTextEmail.getText());
+//                password = String.valueOf(editTextPassword.getText());
+//
+//
+//                //if the email field is empty shows message
+//                if(TextUtils.isEmpty(email)){
+//                    Toast.makeText(LoginActivity.this,"Enter email", Toast.LENGTH_SHORT ).show();
+//                    return;
+//                }
+//
+//                //if the password field is empty shows message
+//                if(TextUtils.isEmpty(password)){
+//                    Toast.makeText(LoginActivity.this,"Enter password", Toast.LENGTH_SHORT ).show();
+//                    return;
+//                }
+//
+//                mAuth.signInWithEmailAndPassword(email, password)
+//                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<AuthResult> task) {
+//                                progressBar.setVisibility(View.GONE);
+//                                if (task.isSuccessful()) {
+//                                    Toast.makeText(LoginActivity.this, "Login successful",
+//                                            Toast.LENGTH_SHORT).show();
+//                                    Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+//                                    startActivity(intent);
+//                                    finish();
+//                                } else {
+//                                    Toast.makeText(LoginActivity.this, "Authentication failed.",
+//                                            Toast.LENGTH_SHORT).show();
+//                                }
+//                            }
+//                        });
+//
+//            }
+//        });
     }
 }

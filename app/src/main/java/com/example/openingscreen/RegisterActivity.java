@@ -43,7 +43,7 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
         mAuth = FirebaseAuth.getInstance();
-        editTextFullname = findViewById(R.id.full_name);
+        //editTextFullname = findViewById(R.id.full_name);
         editTextEmail = findViewById(R.id.email);
         editTextPassword = findViewById(R.id.password);
         progressBar = findViewById(R.id.progressbar);
@@ -63,15 +63,15 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 progressBar.setVisibility(View.VISIBLE);
                 String email, password, full_name;
-                full_name = String.valueOf(editTextFullname.getText());
+                //full_name = String.valueOf(editTextFullname.getText());
                 email = String.valueOf(editTextEmail.getText());
                 password = String.valueOf(editTextPassword.getText());
 
                 //if the full name field is empty shows message
-                if(TextUtils.isEmpty(full_name)){
-                    Toast.makeText(RegisterActivity.this,"Enter full name", Toast.LENGTH_SHORT ).show();
-                    return;
-                }
+                //if(TextUtils.isEmpty(full_name)){
+                //    Toast.makeText(RegisterActivity.this,"Enter full name", Toast.LENGTH_SHORT ).show();
+                //    return;
+                //}
 
                 //if the email field is empty shows message
                 if(TextUtils.isEmpty(email)){
@@ -92,7 +92,6 @@ public class RegisterActivity extends AppCompatActivity {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
-                                    //Log.d(TAG, "createUserWithEmail:success");
                                     //FirebaseUser user = mAuth.getCurrentUser();
                                     Toast.makeText(RegisterActivity.this, "account created",
                                             Toast.LENGTH_SHORT).show();
