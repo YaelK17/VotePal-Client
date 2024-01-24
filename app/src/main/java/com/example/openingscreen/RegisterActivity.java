@@ -43,7 +43,7 @@ public class RegisterActivity extends AppCompatActivity {
         gotologin.setOnClickListener(new View.OnClickListener() { //if clicked on the go to login button it will go to the login screen
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(RegisterActivity.this, TestActivity.class);
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
             }

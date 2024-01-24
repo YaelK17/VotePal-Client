@@ -20,23 +20,23 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
-    EditText editTextEmail, editTextPassword;
-    Button login_btn;
-    FirebaseAuth mAuth;
-    ProgressBar progressBar;
+//    EditText editTextEmail, editTextPassword;
+//    Button login_btn;
+//    FirebaseAuth mAuth;
+//    ProgressBar progressBar;
     TextView gotosignup;
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        //setContentView(R.layout.activity_login);
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){ // if user has already login
-            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-            startActivity(intent);
-            finish();
-        }
-    }
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//        //setContentView(R.layout.activity_login);
+//        FirebaseUser currentUser = mAuth.getCurrentUser();
+//        if(currentUser != null){ // if user has already login
+//            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+//            startActivity(intent);
+//            finish();
+//        }
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,16 +47,16 @@ public class LoginActivity extends AppCompatActivity {
 //        editTextEmail = findViewById(R.id.email);
 //        editTextPassword = findViewById(R.id.password);
 //        progressBar = findViewById(R.id.progressbar);
-//        gotosignup = findViewById(R.id.gotosignup);
+        gotosignup = findViewById(R.id.gotosignup);
 //
-//        gotosignup.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
-//                startActivity(intent);
-//                finish();
-//            }
-//        });
+        gotosignup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 //        login_btn.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
