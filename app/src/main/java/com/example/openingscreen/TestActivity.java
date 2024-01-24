@@ -20,7 +20,7 @@ public class TestActivity extends AppCompatActivity {
         gotosignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(TestActivity.this, MainActivity.class);
+                Intent intent = new Intent(TestActivity.this, RegisterActivity.class);
                 startActivity(intent);
                 finish();
             }
