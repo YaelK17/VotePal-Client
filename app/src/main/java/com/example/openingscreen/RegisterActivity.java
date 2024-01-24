@@ -16,7 +16,7 @@ public class RegisterActivity extends AppCompatActivity {
 //    Button Sign_up_btn;
 //    //FirebaseAuth mAuth;
 //    ProgressBar progressBar;
-//    TextView gotologin;
+    TextView gotologin;
 
 //    @Override
 //    public void onStart() {
@@ -38,16 +38,16 @@ public class RegisterActivity extends AppCompatActivity {
 //        editTextEmail = findViewById(R.id.email);
 //        editTextPassword = findViewById(R.id.password);
 //        progressBar = findViewById(R.id.progressbar);
-//        gotologin = findViewById(R.id.gotologin);
+        gotologin = findViewById(R.id.gotologin);
 //
-//        gotologin.setOnClickListener(new View.OnClickListener() { //if clicked on the go to login button it will go to the login screen
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-//                startActivity(intent);
-//                finish();
-//            }
-//        });
+        gotologin.setOnClickListener(new View.OnClickListener() { //if clicked on the go to login button it will go to the login screen
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(RegisterActivity.this, TestActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
 //
 //        Sign_up_btn.setOnClickListener(new View.OnClickListener() { //if clicked on the sign up button it will create account
 //            @Override
