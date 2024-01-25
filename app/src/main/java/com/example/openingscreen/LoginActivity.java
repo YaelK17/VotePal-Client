@@ -21,7 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 //    EditText editTextEmail, editTextPassword;
-//    Button login_btn;
+    Button login_btn;
 //    FirebaseAuth mAuth;
 //    ProgressBar progressBar;
     TextView gotosignup;
@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
 //        editTextPassword = findViewById(R.id.password);
 //        progressBar = findViewById(R.id.progressbar);
         gotosignup = findViewById(R.id.gotosignup);
-//
+        login_btn = findViewById((R.id.login_btn));
         gotosignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
