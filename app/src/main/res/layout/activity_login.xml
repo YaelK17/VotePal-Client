@@ -39,31 +39,42 @@
                 android:textSize="36sp"
                 android:textStyle="bold" />
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                >
             <EditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginTop="40dp"
                 android:background="@drawable/edit_text_field"
                 android:drawableLeft="@drawable/baseline_email_24"
                 android:drawablePadding="8dp"
                 android:hint="Email"
-                android:inputType="text"
+                android:inputType="textEmailAddress"
                 android:padding="8dp"
                 android:textColor="@color/black" />
+            </com.google.android.material.textfield.TextInputLayout>
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:passwordToggleEnabled="true">
             <EditText
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginTop="20dp"
                 android:background="@drawable/edit_text_field"
                 android:drawableLeft="@drawable/baseline_lock_24"
                 android:drawablePadding="8dp"
                 android:hint="Password"
                 android:inputType="textPassword"
                 android:padding="8dp"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <ProgressBar
                 android:id="@+id/progressbar"

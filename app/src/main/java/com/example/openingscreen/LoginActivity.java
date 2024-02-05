@@ -19,6 +19,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+
+
 public class LoginActivity extends AppCompatActivity {
     EditText editTextEmail, editTextPassword;
     Button login_btn;
@@ -29,7 +31,6 @@ public class LoginActivity extends AppCompatActivity {
 //    @Override
 //    public void onStart() {
 //        super.onStart();
-//        //setContentView(R.layout.activity_login);
 //        FirebaseUser currentUser = mAuth.getCurrentUser();
 //        if(currentUser != null){ // if user has already login
 //            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
@@ -99,4 +100,5 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
 }
