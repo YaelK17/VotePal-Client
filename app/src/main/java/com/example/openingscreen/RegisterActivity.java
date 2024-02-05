@@ -25,16 +25,6 @@ public class RegisterActivity extends AppCompatActivity {
     ProgressBar progressBar;
     TextView gotologin;
 
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if(currentUser != null){ // if user has already login
-//            Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
-//            startActivity(intent);
-//            finish();
-//        }
-//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

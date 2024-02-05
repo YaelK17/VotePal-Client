@@ -34,17 +34,11 @@ public class HomeActivity extends AppCompatActivity {
         email = findViewById(R.id.userdetails);
         user = auth.getCurrentUser();
 
+        OnStart(); //checks if user had login
+
         connecting = findViewById(R.id.connecting);
         server_message = findViewById(R.id.servermessage);
-        message_to_send = findViewById(R.id.messagetosend);
-
-        if (user == null) { //if the user didnt login go to the get started screen
-            Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish();
-        } else { //if user already logined
-            email.setText(user.getEmail()); //the email is written in the home screen
-        }
+         message_to_send = findViewById(R.id.messagetosend);
 
         logout_btn.setOnClickListener(new View.OnClickListener() { //if you click the sign out button it will sign out and move to login screen
             @Override
@@ -57,10 +51,19 @@ public class HomeActivity extends AppCompatActivity {
         });
         //ClientSocket c = new ClientSocket();
         // making the connection with server
-        client();
+        //client();
+    }
+    private void GetUserStatus(){
+        if (user == null) { //if the user didnt login go to the get started screen
+            Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        } else { //if user already logined
+            email.setText(user.getEmail()); //the email is written in the home screen
+        }
     }
 
-    public void client() {
+    private void client() {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -77,5 +80,9 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
         thread.start();
+    }
+    private void OnStart(){
+        super.onStart();
+        GetUserStatus(); //checks if user had login
     }
 }
