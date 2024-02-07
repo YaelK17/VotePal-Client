@@ -38,7 +38,7 @@ public class HomeActivity extends AppCompatActivity {
 
         connecting = findViewById(R.id.connecting);
         server_message = findViewById(R.id.servermessage);
-         message_to_send = findViewById(R.id.messagetosend);
+        message_to_send = findViewById(R.id.messagetosend);
 
         logout_btn.setOnClickListener(new View.OnClickListener() { //if you click the sign out button it will sign out and move to login screen
             @Override
@@ -49,9 +49,6 @@ public class HomeActivity extends AppCompatActivity {
                 finish();
             }
         });
-        //ClientSocket c = new ClientSocket();
-        // making the connection with server
-        //client();
     }
     private void GetUserStatus(){
         if (user == null) { //if the user didnt login go to the get started screen
@@ -61,25 +58,6 @@ public class HomeActivity extends AppCompatActivity {
         } else { //if user already logined
             email.setText(user.getEmail()); //the email is written in the home screen
         }
-    }
-
-    private void client() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    Socket socket = new Socket("127.0.0.1", 5000);
-                    DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-                    dOut.writeByte(1);
-                    dOut.writeUTF("first message");
-                    dOut.flush(); // send off the data
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });
-        thread.start();
     }
     private void OnStart(){
         super.onStart();

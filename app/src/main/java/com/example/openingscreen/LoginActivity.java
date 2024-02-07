@@ -19,6 +19,13 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.DataOutputStream;
+import java.net.Socket;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -54,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
                 String email, password;
                 email = String.valueOf(editTextEmail.getText());
                 password = String.valueOf(editTextPassword.getText());
+                client();
 
 
                 //if the email field is empty shows message
@@ -88,6 +96,25 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
+    }
+    private void client() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    //InetAddress host = InetAddress.getLocalHost();
+                    Socket socket = new Socket("10.0.2.2", 5000);
+                    DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
+                    dOut.writeByte(1);
+                    dOut.writeUTF("yael");
+                    dOut.flush(); // send off the data
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
     }
 
 }
