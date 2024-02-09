@@ -34,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     ProgressBar progressBar;
     TextView gotosignup;
+    FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +75,6 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this,"Enter password", Toast.LENGTH_SHORT ).show();
                     return;
                 }
-                client(); // connecting to server
 
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -84,6 +84,9 @@ public class LoginActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(LoginActivity.this, "Login successful",
                                             Toast.LENGTH_SHORT).show();
+                                    user = mAuth.getCurrentUser();
+                                    client(); // connecting to server
+
                                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                                     startActivity(intent);
                                     finish();
@@ -103,11 +106,13 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 try{
                     //InetAddress host = InetAddress.getLocalHost();
-                    Socket socket = new Socket("10.0.2.2", 5000);
+                    Socket socket = new Socket("10.0.2.2", 1234);
                     DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
 //                    dOut.writeByte(100);
-//                    dOut.writeUTF("yael");
-                    dOut.writeBytes("yael");
+//                    dOut.writeUTF(user.getUid());
+                    byte[] bytes = user.getUid().getBytes();
+                    dOut.write(bytes);
+                    //dOut.writeBytes(user.getUid());
                     dOut.flush(); // send off the data
                 }
                 catch (Exception e){
