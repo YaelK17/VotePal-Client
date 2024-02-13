@@ -35,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     ProgressBar progressBar;
     TextView gotosignup;
     FirebaseUser user;
+    String tosend;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +111,8 @@ public class LoginActivity extends AppCompatActivity {
                     DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
 //                    dOut.writeByte(100);
 //                    dOut.writeUTF(user.getUid());
-                    byte[] bytes = user.getUid().getBytes();
+                    tosend = "user" + user.getUid();
+                    byte[] bytes = tosend.getBytes(); //sending the user id to server
                     dOut.write(bytes);
                     //dOut.writeBytes(user.getUid());
                     dOut.flush(); // send off the data

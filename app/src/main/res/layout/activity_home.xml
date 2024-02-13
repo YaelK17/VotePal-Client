@@ -5,9 +5,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
+    android:paddingTop="15dp"
+    android:gravity="center_horizontal"
     tools:context=".HomeActivity">
 
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:hint="@string/select"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        >
+
+        <AutoCompleteTextView
+            android:id="@+id/auto_complete_txt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/select"
+            android:inputType="none" />
+    </com.google.android.material.textfield.TextInputLayout>
     <TextView
         android:id="@+id/userdetails"
         android:layout_width="wrap_content"
@@ -22,12 +38,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="logout" />
-    <TextView
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="connecting"
-        android:id="@+id/connecting"
+        android:text="choose"
+        android:id="@+id/choose"
         android:textSize="20sp"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -37,14 +54,14 @@
         android:layout_height="48dp"
         android:ems="10"
         android:inputType="text"
-        android:text="message to send"
+        android:hint="message to send"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="servermessage"
+        android:hint="servermessage"
         android:id="@+id/servermessage"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
