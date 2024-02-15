@@ -19,6 +19,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -83,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 progressBar.setVisibility(View.GONE);
                                 if (task.isSuccessful()) {
-                                    Toast.makeText(LoginActivity.this, "Login successful",
+                                    Toast.makeText(LoginActivity.this, "Logined",
                                             Toast.LENGTH_SHORT).show();
                                     user = mAuth.getCurrentUser();
                                     client(); // connecting to server
@@ -116,6 +118,18 @@ public class LoginActivity extends AppCompatActivity {
                     dOut.write(bytes);
                     //dOut.writeBytes(user.getUid());
                     dOut.flush(); // send off the data
+
+
+                    DataInputStream dIn = new DataInputStream(socket.getInputStream());
+
+                    byte[] bytes_received = new byte[100];
+
+                    //String message = dIn.readUTF();
+                    dIn.read(bytes_received); //receiving bytes message from server
+                    String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    Toast.makeText(LoginActivity.this, s,
+                            Toast.LENGTH_LONG).show();
+
                 }
                 catch (Exception e){
                     e.printStackTrace();
