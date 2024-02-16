@@ -71,8 +71,29 @@
         android:layout_height="48dp"
         android:ems="10"
         android:inputType="text"
-        android:hint="message to send"
+        android:hint="election's name"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
+
+    <EditText
+        android:id="@+id/candidates_names"
+        android:layout_width="wrap_content"
+        android:gravity="center"
+        android:layout_height="48dp"
+        android:ems="10"
+        android:inputType="text"
+        android:hint="candidates"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
+    <Button
+        android:id="@+id/finished_creating"
+        android:textSize="22sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="creat election"
+        android:visibility="gone"/>
+
 
 </LinearLayout>

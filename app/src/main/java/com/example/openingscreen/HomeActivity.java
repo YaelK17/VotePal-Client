@@ -35,6 +35,8 @@ public class HomeActivity extends AppCompatActivity {
     ArrayAdapter<String> adapter_election_options;
     String election_option;
     Button creating;
+    Button finished_creating;
+    EditText candidates_names;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +53,8 @@ public class HomeActivity extends AppCompatActivity {
         server_message = findViewById(R.id.servermessage);
         message_to_send = findViewById(R.id.messagetosend);
         creating = findViewById(R.id.creating);
+        candidates_names = findViewById(R.id.candidates_names);
+        finished_creating = findViewById(R.id.finished_creating);
 
         autocompleteTxt = findViewById(R.id.auto_complete_txt);
         adapter_election_options = new ArrayAdapter<String>(this,R.layout.list_elections_options, election_options);
@@ -64,7 +68,22 @@ public class HomeActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "election_option: " + election_option, Toast.LENGTH_SHORT).show();
             }
         });
+        creating.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                message_to_send.setVisibility(View.VISIBLE); //the name of ekection
+                candidates_names.setVisibility(View.VISIBLE);
+                finished_creating.setVisibility(View.VISIBLE);
+            }
+        });
 
+        finished_creating.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String m ="create" + message_to_send.getText();
+                client(m);
+            }
+        });
 
         logout_btn.setOnClickListener(new View.OnClickListener() { //if you click the sign out button it will sign out and move to login screen
             @Override
