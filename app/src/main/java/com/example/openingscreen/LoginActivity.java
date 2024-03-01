@@ -108,23 +108,17 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try{
-                    //InetAddress host = InetAddress.getLocalHost();
-                    Socket socket = new Socket("10.0.2.2", 1234);
-                    DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-//                    dOut.writeByte(100);
-//                    dOut.writeUTF(user.getUid());
+                    Client client = Client.getClient_instance();
+                    Socket socket = client.getSocket();
+                    DataOutputStream dOut = client.getdout();
                     tosend = "user" + user.getUid();
                     byte[] bytes = tosend.getBytes(); //sending the user id to server
                     dOut.write(bytes);
-                    //dOut.writeBytes(user.getUid());
                     dOut.flush(); // send off the data
 
-
-                    DataInputStream dIn = new DataInputStream(socket.getInputStream());
-
+                    DataInputStream dIn = client.getdin();
                     byte[] bytes_received = new byte[100];
 
-                    //String message = dIn.readUTF();
                     dIn.read(bytes_received); //receiving bytes message from server
                     String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
                     Toast.makeText(LoginActivity.this, s,

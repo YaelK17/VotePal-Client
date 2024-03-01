@@ -109,7 +109,7 @@ public class HomeActivity extends AppCompatActivity {
     }
     private void GetUserStatus(){
         if (user == null) { //if the user didnt login go to the get started screen
-            Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+            Intent intent = new Intent(HomeActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
         } else { //if user already logined
@@ -122,23 +122,19 @@ public class HomeActivity extends AppCompatActivity {
         GetUserStatus(); //checks if user had login
     }
     private void client(String election_option) {
-        Thread thread = new Thread(new Runnable() {
+            Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try{
-                    //InetAddress host = InetAddress.getLocalHost();
-                    Socket socket = new Socket("10.0.2.2", 1234);
-                    DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());
-                    DataInputStream dIn = new DataInputStream(socket.getInputStream());
+                    Client client = Client.getClient_instance();
+                    Socket socket = client.getSocket();
+                    DataOutputStream dOut = client.getdout();
+                    DataInputStream dIn = client.getdin();
                     byte[] bytes = election_option.getBytes(); //sending the user id to server
                     dOut.write(bytes);
-                    //dOut.writeBytes(user.getUid());
                     dOut.flush(); // send off the data
-                    //convert ObjectInputStream object to String
 
                     byte[] bytes_received = new byte[100];
-
-                    //String message = dIn.readUTF();
                     dIn.read(bytes_received); //receiving bytes message from server
                     String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
 
