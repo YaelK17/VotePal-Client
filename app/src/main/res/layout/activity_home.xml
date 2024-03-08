@@ -64,29 +64,115 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="+" />
+
     <EditText
         android:id="@+id/messagetosend"
         android:layout_width="wrap_content"
-        android:gravity="center"
         android:layout_height="48dp"
         android:ems="10"
-        android:inputType="text"
+        android:gravity="center"
         android:hint="election's name"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone"/>
-
-    <EditText
-        android:id="@+id/candidates_names"
-        android:layout_width="wrap_content"
-        android:gravity="center"
-        android:layout_height="48dp"
-        android:ems="10"
         android:inputType="text"
-        android:hint="candidates"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:visibility="gone"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="150dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/adding_photo_one"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:paddingTop="10dp"
+                app:layout_constraintBottom_toTopOf="@+id/textView2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:visibility="gone"
+                app:srcCompat="@drawable/adding_photo_icon" />
+
+            <EditText
+                android:id="@+id/candidates_names1"
+                android:layout_width="100dp"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:gravity="center"
+                android:hint="candidates"
+                android:inputType="text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/adding_photo_two"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:paddingTop="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:srcCompat="@drawable/adding_photo_icon"
+                android:visibility="gone"/>
+
+            <EditText
+                android:id="@+id/candidates_names2"
+                android:layout_width="100dp"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:gravity="center"
+                android:hint="candidates"
+                android:inputType="text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/adding_photo_three"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:paddingTop="10dp"
+                app:layout_constraintBottom_toTopOf="@+id/textView2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:srcCompat="@drawable/adding_photo_icon"
+                android:visibility="gone"/>
+
+            <EditText
+                android:id="@+id/candidates_name3"
+                android:layout_width="100dp"
+                android:layout_height="48dp"
+                android:ems="10"
+                android:gravity="center"
+                android:hint="candidates"
+                android:inputType="text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="gone"/>
+        </LinearLayout>
+    </LinearLayout>
+
     <Button
         android:id="@+id/finished_creating"
         android:textSize="22sp"
