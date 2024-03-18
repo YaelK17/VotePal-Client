@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -136,44 +137,54 @@ public class HomeActivity extends AppCompatActivity {
                 finish();
             }
         });
-        //ActivityResultLauncher<PickVisualMediaRequest> launcher = getlancher(imageView1);
-        ImageView1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                get_launcher(ImageView1).launch(new PickVisualMediaRequest.Builder()
-                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                        .build());
-            }
-        });
-        ImageView2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                get_launcher(ImageView2).launch(new PickVisualMediaRequest.Builder()
-                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                        .build());
-            }
-        });
-        ImageView3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                get_launcher(ImageView3).launch(new PickVisualMediaRequest.Builder()
-                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                        .build());
-            }
-        });
+
+
+//        ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
+//                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+//                    // Callback is invoked after the user selects a media item or closes the
+//                    // photo picker.
+//                    if (uri != null) {
+//                        Log.d("PhotoPicker", "Selected URI: " + uri);
+//                    } else {
+//                        Log.d("PhotoPicker", "No media selected");
+//                    }
+//                });
+//        ImageView1.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // Launch the photo picker and let the user choose only images.
+//                pickMedia.launch(new PickVisualMediaRequest.Builder()
+//                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+//                        .build());
+//            }
+//        });
+        Pick_picture(ImageView1);
+        Pick_picture(ImageView2);
+        Pick_picture(ImageView3);
+
 
     }
-    private ActivityResultLauncher<PickVisualMediaRequest> get_launcher(ImageView imageView){
-        ActivityResultLauncher<PickVisualMediaRequest> launcher = registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), new ActivityResultCallback<Uri>() {
+    private void Pick_picture(ImageView imageview){
+        // the function make that when clicked on add image it will add
+        ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                    // Callback is invoked after the user selects a media item or closes the
+                    // photo picker.
+                    if (uri != null) {
+                        Log.d("PhotoPicker", "Selected URI: " + uri);
+                    } else {
+                        Log.d("PhotoPicker", "No media selected");
+                    }
+                });
+        imageview.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onActivityResult(Uri o) {
-                if (o == null) {
-                } else {
-                    Glide.with(getApplicationContext()).load(o).into(imageView);
-                }
+            public void onClick(View v) {
+                // Launch the photo picker and let the user choose only images.
+                pickMedia.launch(new PickVisualMediaRequest.Builder()
+                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                        .build());
             }
         });
-        return launcher;
     }
     private void GetUserStatus(){
         if (user == null) { //if the user didnt login go to the get started screen
