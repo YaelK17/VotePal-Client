@@ -3,14 +3,18 @@ package com.example.openingscreen;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 
 public class ChoosingActivity extends AppCompatActivity {
+    Button send_choice;
     RadioButton one;
     RadioButton two;
     RadioButton three;
@@ -22,6 +26,7 @@ public class ChoosingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choosing);
+        send_choice = findViewById(R.id.candidate_choice);
         one = findViewById(R.id.radio_option1);
         two = findViewById(R.id.radio_option2);
         three = findViewById(R.id.radio_option3);
@@ -29,6 +34,13 @@ public class ChoosingActivity extends AppCompatActivity {
         five = findViewById(R.id.radio_option5);
         six = findViewById(R.id.radio_option6);
         receiving_candidates();
+
+        send_choice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //todo
+            }
+        });
     }
     private void receiving_candidates() {
         Thread thread = new Thread(new Runnable() {
@@ -42,7 +54,17 @@ public class ChoosingActivity extends AppCompatActivity {
                     byte[] bytes_received = new byte[100];
                     dIn.read(bytes_received); //receiving bytes message from server
                     String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-                    one.setText(s); //setting message to be message from server
+                    six.setText(s); //setting message to be message from server
+                    String[] list_of_candidate = s.trim().split(",");
+                    int i = 0;
+                    if (list_of_candidate.length == 3){
+                        one.setText(list_of_candidate[0]);
+                        two.setText(list_of_candidate[1]);
+                        three.setText(list_of_candidate[2]);
+                        four.setVisibility(View.GONE);
+                        five.setVisibility(View.GONE);
+                        six.setVisibility(View.GONE);
+                    }
 
                 }
                 catch (Exception e){

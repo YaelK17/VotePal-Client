@@ -5,6 +5,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,6 +19,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     FirebaseAuth auth;
     Button logout_btn;
     TextView email;
@@ -40,7 +44,7 @@ public class HomeActivity extends AppCompatActivity {
     TextView server_message;
     Button choose_btn;
     EditText message_to_send;
-    String[] election_options = {"elections1", "elections2", "elections3"};
+    String[] election_options;
     AutoCompleteTextView autocompleteTxt;
     ArrayAdapter<String> adapter_election_options;
     String election_option;
@@ -49,9 +53,15 @@ public class HomeActivity extends AppCompatActivity {
     EditText candidates_names;
     EditText candidates_names2;
     EditText candidates_names3;
+    EditText candidates_names4;
+    EditText candidates_names5;
+    EditText candidates_names6;
     ImageView ImageView1;
     ImageView ImageView2;
     ImageView ImageView3;
+    ImageView ImageView4;
+    ImageView ImageView5;
+    ImageView ImageView6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +80,12 @@ public class HomeActivity extends AppCompatActivity {
         message_to_send = findViewById(R.id.messagetosend);
         creating = findViewById(R.id.creating);
 
-        candidates_names = findViewById(R.id.candidates_names1);
-        candidates_names2 = findViewById(R.id.candidates_names2);
-        candidates_names3 = findViewById(R.id.candidates_name3);
+        candidates_names = findViewById(R.id.candidate_name1);
+        candidates_names2 = findViewById(R.id.candidate_name2);
+        candidates_names3 = findViewById(R.id.candidate_name3);
+        candidates_names4 = findViewById(R.id.candidate_name4);
+        candidates_names5 = findViewById(R.id.candidate_name5);
+        candidates_names6 = findViewById(R.id.candidate_name6);
 
 
         finished_creating = findViewById(R.id.finished_creating);
@@ -85,7 +98,27 @@ public class HomeActivity extends AppCompatActivity {
         ImageView1 = findViewById(R.id.adding_photo_one);
         ImageView2 = findViewById(R.id.adding_photo_two);
         ImageView3 = findViewById(R.id.adding_photo_three);
+        ImageView4 = findViewById(R.id.adding_photo_four);
+        ImageView5 = findViewById(R.id.adding_photo_five);
+        ImageView6 = findViewById(R.id.adding_photo_six);
         // image picker
+
+
+        //candidates number options
+        Spinner spinner = (Spinner) findViewById(R.id.planets_spinner);
+        // Create an ArrayAdapter using the string array and a default spinner layout.
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.planets_array,
+                android.R.layout.simple_spinner_item
+        );
+        // Specify the layout to use when the list of choices appears.
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner.
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
+
+
 
         autocompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -99,13 +132,7 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // setting the hidden creating options visible
                 message_to_send.setVisibility(View.VISIBLE); //the name of election
-                candidates_names.setVisibility(View.VISIBLE);
-                candidates_names2.setVisibility(View.VISIBLE);
-                candidates_names3.setVisibility(View.VISIBLE);
-                finished_creating.setVisibility(View.VISIBLE);
-                ImageView1.setVisibility(View.VISIBLE);
-                ImageView2.setVisibility(View.VISIBLE);
-                ImageView3.setVisibility(View.VISIBLE);
+                spinner.setVisibility(View.VISIBLE);
             }
         });
 
@@ -138,29 +165,12 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-
-//        ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
-//                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-//                    // Callback is invoked after the user selects a media item or closes the
-//                    // photo picker.
-//                    if (uri != null) {
-//                        Log.d("PhotoPicker", "Selected URI: " + uri);
-//                    } else {
-//                        Log.d("PhotoPicker", "No media selected");
-//                    }
-//                });
-//        ImageView1.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Launch the photo picker and let the user choose only images.
-//                pickMedia.launch(new PickVisualMediaRequest.Builder()
-//                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-//                        .build());
-//            }
-//        });
         Pick_picture(ImageView1);
         Pick_picture(ImageView2);
         Pick_picture(ImageView3);
+        Pick_picture(ImageView4);
+        Pick_picture(ImageView5);
+        Pick_picture(ImageView6);
 
 
     }
@@ -186,7 +196,110 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
+    private void Are_fields_full(){
+        // function checks if all fields are full
+        // if they are not then it asks the user to fill it
+
+        //todo
+    }
+    private void SetVisible(int number_of_candidates){
+        // function make the creating election options visible according to the number of candidates
+        finished_creating.setVisibility(View.VISIBLE);
+        if (number_of_candidates == 1) {
+            candidates_names.setVisibility(View.VISIBLE);
+            ImageView1.setVisibility(View.VISIBLE);
+
+            candidates_names2.setVisibility(View.GONE);
+            ImageView2.setVisibility(View.GONE);
+            candidates_names3.setVisibility(View.GONE);
+            ImageView3.setVisibility(View.GONE);
+            candidates_names4.setVisibility(View.GONE);
+            ImageView4.setVisibility(View.GONE);
+            candidates_names5.setVisibility(View.GONE);
+            ImageView5.setVisibility(View.GONE);
+            candidates_names6.setVisibility(View.GONE);
+            ImageView6.setVisibility(View.GONE);
+        }
+        if (number_of_candidates == 2) {
+            candidates_names.setVisibility(View.VISIBLE);
+            ImageView1.setVisibility(View.VISIBLE);
+            candidates_names2.setVisibility(View.VISIBLE);
+            ImageView2.setVisibility(View.VISIBLE);
+
+            candidates_names3.setVisibility(View.GONE);
+            ImageView3.setVisibility(View.GONE);
+            candidates_names4.setVisibility(View.GONE);
+            ImageView4.setVisibility(View.GONE);
+            candidates_names5.setVisibility(View.GONE);
+            ImageView5.setVisibility(View.GONE);
+            candidates_names6.setVisibility(View.GONE);
+            ImageView6.setVisibility(View.GONE);
+        }
+        if (number_of_candidates == 3) {
+            candidates_names.setVisibility(View.VISIBLE);
+            ImageView1.setVisibility(View.VISIBLE);
+            candidates_names2.setVisibility(View.VISIBLE);
+            ImageView2.setVisibility(View.VISIBLE);
+            candidates_names3.setVisibility(View.VISIBLE);
+            ImageView3.setVisibility(View.VISIBLE);
+
+            candidates_names4.setVisibility(View.GONE);
+            ImageView4.setVisibility(View.GONE);
+            candidates_names5.setVisibility(View.GONE);
+            ImageView5.setVisibility(View.GONE);
+            candidates_names6.setVisibility(View.GONE);
+            ImageView6.setVisibility(View.GONE);
+        }
+        if (number_of_candidates == 4) {
+            candidates_names.setVisibility(View.VISIBLE);
+            ImageView1.setVisibility(View.VISIBLE);
+            candidates_names2.setVisibility(View.VISIBLE);
+            ImageView2.setVisibility(View.VISIBLE);
+            candidates_names3.setVisibility(View.VISIBLE);
+            ImageView3.setVisibility(View.VISIBLE);
+            candidates_names4.setVisibility(View.VISIBLE);
+            ImageView4.setVisibility(View.VISIBLE);
+
+            candidates_names5.setVisibility(View.GONE);
+            ImageView5.setVisibility(View.GONE);
+            candidates_names6.setVisibility(View.GONE);
+            ImageView6.setVisibility(View.GONE);
+        }
+        if (number_of_candidates == 5) {
+            candidates_names.setVisibility(View.VISIBLE);
+            ImageView1.setVisibility(View.VISIBLE);
+            candidates_names2.setVisibility(View.VISIBLE);
+            ImageView2.setVisibility(View.VISIBLE);
+            candidates_names3.setVisibility(View.VISIBLE);
+            ImageView3.setVisibility(View.VISIBLE);
+            candidates_names4.setVisibility(View.VISIBLE);
+            ImageView4.setVisibility(View.VISIBLE);
+            candidates_names5.setVisibility(View.VISIBLE);
+            ImageView5.setVisibility(View.VISIBLE);
+
+            candidates_names6.setVisibility(View.GONE);
+            ImageView6.setVisibility(View.GONE);
+        }
+        if (number_of_candidates == 6) {
+            candidates_names.setVisibility(View.VISIBLE);
+            ImageView1.setVisibility(View.VISIBLE);
+            candidates_names2.setVisibility(View.VISIBLE);
+            ImageView2.setVisibility(View.VISIBLE);
+            candidates_names3.setVisibility(View.VISIBLE);
+            ImageView3.setVisibility(View.VISIBLE);
+            candidates_names4.setVisibility(View.VISIBLE);
+            ImageView4.setVisibility(View.VISIBLE);
+            candidates_names5.setVisibility(View.VISIBLE);
+            ImageView5.setVisibility(View.VISIBLE);
+            candidates_names6.setVisibility(View.VISIBLE);
+            ImageView6.setVisibility(View.VISIBLE);
+        }
+
+        //todo
+
+    }
     private void GetUserStatus(){
+        // functions checks if the user already login
         if (user == null) { //if the user didnt login go to the get started screen
             Intent intent = new Intent(HomeActivity.this, MainActivity.class);
             startActivity(intent);
@@ -222,7 +335,7 @@ public class HomeActivity extends AppCompatActivity {
                     }
 
                     server_message.setText(s); //setting message to be message from server
-
+                    election_options = s.trim().split(",");
                 }
                 catch (Exception e){
                     e.printStackTrace();
@@ -230,5 +343,20 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
         thread.start();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        // An item is selected. You can retrieve the selected item using
+        // parent.getItemAtPosition(pos).
+        String selected_number_of_candidates = parent.getItemAtPosition(position).toString();
+        SetVisible(Integer.valueOf(selected_number_of_candidates));
+        Toast.makeText(HomeActivity.this, selected_number_of_candidates ,
+                Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
