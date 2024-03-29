@@ -44,24 +44,12 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
     TextView server_message;
     Button choose_btn;
     EditText message_to_send;
-    String[] election_options;
+    String[] election_options = {"election4", "elections1", "gvnhf"};
     AutoCompleteTextView autocompleteTxt;
     ArrayAdapter<String> adapter_election_options;
     String election_option;
     Button creating;
     Button finished_creating;
-    EditText candidates_names;
-    EditText candidates_names2;
-    EditText candidates_names3;
-    EditText candidates_names4;
-    EditText candidates_names5;
-    EditText candidates_names6;
-    ImageView ImageView1;
-    ImageView ImageView2;
-    ImageView ImageView3;
-    ImageView ImageView4;
-    ImageView ImageView5;
-    ImageView ImageView6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,13 +68,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         message_to_send = findViewById(R.id.messagetosend);
         creating = findViewById(R.id.creating);
 
-        candidates_names = findViewById(R.id.candidate_name1);
-        candidates_names2 = findViewById(R.id.candidate_name2);
-        candidates_names3 = findViewById(R.id.candidate_name3);
-        candidates_names4 = findViewById(R.id.candidate_name4);
-        candidates_names5 = findViewById(R.id.candidate_name5);
-        candidates_names6 = findViewById(R.id.candidate_name6);
-
+        EditText[] candidate_names = {findViewById(R.id.candidate_name1), findViewById(R.id.candidate_name2), findViewById(R.id.candidate_name3), findViewById(R.id.candidate_name4), findViewById(R.id.candidate_name5), findViewById(R.id.candidate_name6)};
 
         finished_creating = findViewById(R.id.finished_creating);
 
@@ -94,13 +76,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         adapter_election_options = new ArrayAdapter<String>(this,R.layout.list_elections_options, election_options);
 
         autocompleteTxt.setAdapter(adapter_election_options);
-
-        ImageView1 = findViewById(R.id.adding_photo_one);
-        ImageView2 = findViewById(R.id.adding_photo_two);
-        ImageView3 = findViewById(R.id.adding_photo_three);
-        ImageView4 = findViewById(R.id.adding_photo_four);
-        ImageView5 = findViewById(R.id.adding_photo_five);
-        ImageView6 = findViewById(R.id.adding_photo_six);
+        ImageView[] candidate_pictures = {findViewById(R.id.adding_photo_one), findViewById(R.id.adding_photo_two), findViewById(R.id.adding_photo_three), findViewById(R.id.adding_photo_four), findViewById(R.id.adding_photo_five), findViewById(R.id.adding_photo_six)};
         // image picker
 
 
@@ -165,12 +141,9 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         });
 
-        Pick_picture(ImageView1);
-        Pick_picture(ImageView2);
-        Pick_picture(ImageView3);
-        Pick_picture(ImageView4);
-        Pick_picture(ImageView5);
-        Pick_picture(ImageView6);
+        for (int i = 0; i<candidate_pictures.length; i++){
+            Pick_picture(candidate_pictures[i]);
+        }
 
 
     }
@@ -202,97 +175,19 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //todo
     }
-    private void SetVisible(int number_of_candidates){
+    private void SetVisible(int number_of_candidates, EditText[] candidate_names, ImageView[] candidate_photos){
         // function make the creating election options visible according to the number of candidates
         finished_creating.setVisibility(View.VISIBLE);
-        if (number_of_candidates == 1) {
-            candidates_names.setVisibility(View.VISIBLE);
-            ImageView1.setVisibility(View.VISIBLE);
 
-            candidates_names2.setVisibility(View.GONE);
-            ImageView2.setVisibility(View.GONE);
-            candidates_names3.setVisibility(View.GONE);
-            ImageView3.setVisibility(View.GONE);
-            candidates_names4.setVisibility(View.GONE);
-            ImageView4.setVisibility(View.GONE);
-            candidates_names5.setVisibility(View.GONE);
-            ImageView5.setVisibility(View.GONE);
-            candidates_names6.setVisibility(View.GONE);
-            ImageView6.setVisibility(View.GONE);
+        for (int i = 0; i < number_of_candidates; i++){
+            // sets the candidates to structure visible
+            candidate_names[i].setVisibility(View.VISIBLE);
+            candidate_photos[i].setVisibility(View.VISIBLE);
         }
-        if (number_of_candidates == 2) {
-            candidates_names.setVisibility(View.VISIBLE);
-            ImageView1.setVisibility(View.VISIBLE);
-            candidates_names2.setVisibility(View.VISIBLE);
-            ImageView2.setVisibility(View.VISIBLE);
-
-            candidates_names3.setVisibility(View.GONE);
-            ImageView3.setVisibility(View.GONE);
-            candidates_names4.setVisibility(View.GONE);
-            ImageView4.setVisibility(View.GONE);
-            candidates_names5.setVisibility(View.GONE);
-            ImageView5.setVisibility(View.GONE);
-            candidates_names6.setVisibility(View.GONE);
-            ImageView6.setVisibility(View.GONE);
-        }
-        if (number_of_candidates == 3) {
-            candidates_names.setVisibility(View.VISIBLE);
-            ImageView1.setVisibility(View.VISIBLE);
-            candidates_names2.setVisibility(View.VISIBLE);
-            ImageView2.setVisibility(View.VISIBLE);
-            candidates_names3.setVisibility(View.VISIBLE);
-            ImageView3.setVisibility(View.VISIBLE);
-
-            candidates_names4.setVisibility(View.GONE);
-            ImageView4.setVisibility(View.GONE);
-            candidates_names5.setVisibility(View.GONE);
-            ImageView5.setVisibility(View.GONE);
-            candidates_names6.setVisibility(View.GONE);
-            ImageView6.setVisibility(View.GONE);
-        }
-        if (number_of_candidates == 4) {
-            candidates_names.setVisibility(View.VISIBLE);
-            ImageView1.setVisibility(View.VISIBLE);
-            candidates_names2.setVisibility(View.VISIBLE);
-            ImageView2.setVisibility(View.VISIBLE);
-            candidates_names3.setVisibility(View.VISIBLE);
-            ImageView3.setVisibility(View.VISIBLE);
-            candidates_names4.setVisibility(View.VISIBLE);
-            ImageView4.setVisibility(View.VISIBLE);
-
-            candidates_names5.setVisibility(View.GONE);
-            ImageView5.setVisibility(View.GONE);
-            candidates_names6.setVisibility(View.GONE);
-            ImageView6.setVisibility(View.GONE);
-        }
-        if (number_of_candidates == 5) {
-            candidates_names.setVisibility(View.VISIBLE);
-            ImageView1.setVisibility(View.VISIBLE);
-            candidates_names2.setVisibility(View.VISIBLE);
-            ImageView2.setVisibility(View.VISIBLE);
-            candidates_names3.setVisibility(View.VISIBLE);
-            ImageView3.setVisibility(View.VISIBLE);
-            candidates_names4.setVisibility(View.VISIBLE);
-            ImageView4.setVisibility(View.VISIBLE);
-            candidates_names5.setVisibility(View.VISIBLE);
-            ImageView5.setVisibility(View.VISIBLE);
-
-            candidates_names6.setVisibility(View.GONE);
-            ImageView6.setVisibility(View.GONE);
-        }
-        if (number_of_candidates == 6) {
-            candidates_names.setVisibility(View.VISIBLE);
-            ImageView1.setVisibility(View.VISIBLE);
-            candidates_names2.setVisibility(View.VISIBLE);
-            ImageView2.setVisibility(View.VISIBLE);
-            candidates_names3.setVisibility(View.VISIBLE);
-            ImageView3.setVisibility(View.VISIBLE);
-            candidates_names4.setVisibility(View.VISIBLE);
-            ImageView4.setVisibility(View.VISIBLE);
-            candidates_names5.setVisibility(View.VISIBLE);
-            ImageView5.setVisibility(View.VISIBLE);
-            candidates_names6.setVisibility(View.VISIBLE);
-            ImageView6.setVisibility(View.VISIBLE);
+        for (int i = number_of_candidates; i < candidate_photos.length; i++){
+            // sets the rest GONE
+            candidate_names[i].setVisibility(View.GONE);
+            candidate_photos[i].setVisibility(View.GONE);
         }
 
         //todo
@@ -349,8 +244,10 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         // An item is selected. You can retrieve the selected item using
         // parent.getItemAtPosition(pos).
+        EditText[] candidate_names = {findViewById(R.id.candidate_name1), findViewById(R.id.candidate_name2), findViewById(R.id.candidate_name3), findViewById(R.id.candidate_name4), findViewById(R.id.candidate_name5), findViewById(R.id.candidate_name6)};
+        ImageView[] candidate_pictures = {findViewById(R.id.adding_photo_one), findViewById(R.id.adding_photo_two), findViewById(R.id.adding_photo_three), findViewById(R.id.adding_photo_four), findViewById(R.id.adding_photo_five), findViewById(R.id.adding_photo_six)};
         String selected_number_of_candidates = parent.getItemAtPosition(position).toString();
-        SetVisible(Integer.valueOf(selected_number_of_candidates));
+        SetVisible(Integer.valueOf(selected_number_of_candidates), candidate_names, candidate_pictures);
         Toast.makeText(HomeActivity.this, selected_number_of_candidates ,
                 Toast.LENGTH_LONG).show();
     }
