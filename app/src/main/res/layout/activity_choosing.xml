@@ -7,6 +7,14 @@
     android:orientation="vertical"
     tools:context=".ChoosingActivity">
 
+    <TextView
+        android:id="@+id/election_name"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

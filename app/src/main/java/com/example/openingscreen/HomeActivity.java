@@ -115,8 +115,9 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         finished_creating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String m ="create" + message_to_send.getText();
-                client(m);
+                client("create", String.valueOf(message_to_send.getText()));
+                client(Get_candidate_names(candidate_names), ""); // sending the name of the new election
+                // sending the name of candidates
             }
         });
 
@@ -133,8 +134,7 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         choose_btn.setOnClickListener(new View.OnClickListener() { //if you click the choose button it will go to choosing activity
             @Override
             public void onClick(View v) {
-                String to_send = "option" + election_option;
-                client(to_send);
+                client("option", ("op" + election_option));
                 Intent intent = new Intent(HomeActivity.this, ChoosingActivity.class);
                 startActivity(intent);
                 finish();
@@ -146,6 +146,17 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
 
+    }
+    private String Get_candidate_names(EditText[] candidate_names){
+        // function returns string of names of the candidates
+        String string_candidate_names = "";
+        for (int i = 0; i< candidate_names.length; i++){
+            if (! candidate_names[i].getText().toString().matches("")){
+                // if the editext is not empty
+                string_candidate_names += candidate_names[i].getText() + ",";
+            }
+        }
+        return string_candidate_names;
     }
     private void Pick_picture(ImageView imageview){
         // the function make that when clicked on add image it will add
@@ -190,8 +201,6 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
             candidate_photos[i].setVisibility(View.GONE);
         }
 
-        //todo
-
     }
     private void GetUserStatus(){
         // functions checks if the user already login
@@ -201,14 +210,16 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
             finish();
         } else { //if user already logined
             email.setText(user.getEmail()); //the email is written in the home screen
-            client("askingforoptions"); // means asking for election options
+
+            client(user.getUid(),"askingforoptions");
+            //sends the userid and also asks for options
         }
     }
     private void OnStart(){
         super.onStart();
         GetUserStatus(); //checks if user had login
     }
-    private void client(String election_option) {
+    private void client(String to_send_first, String to_Send_later) {
             Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -217,20 +228,40 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
                     Socket socket = client.getSocket();
                     DataOutputStream dOut = client.getdout();
                     DataInputStream dIn = client.getdin();
-                    byte[] bytes = election_option.getBytes(); //sending the user id to server
+                    byte[] bytes = to_send_first.getBytes(); //sending the user id to server
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
                     String s = "";
-                    String x = election_option.substring(0,6);
-                    if (!x.equals("option")){ // if its the option then it does need to receive an answer in this activity
-                        byte[] bytes_received = new byte[100];
-                        dIn.read(bytes_received); //receiving bytes message from server
-                        s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    byte[] bytes_received = new byte[100];
+                    dIn.read(bytes_received); //receiving bytes message from server
+                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
 
+                    if (to_send_first == "option"){
+                        bytes = to_Send_later.substring(2).getBytes(); //sending the user id to server
+                        dOut.write(bytes);
+                        dOut.flush();
+                    }
+                    else {
+                        server_message.setText(s); //setting message to be message from server
+                        //election_options = s.trim().split(",");
                     }
 
-                    server_message.setText(s); //setting message to be message from server
-                    election_options = s.trim().split(",");
+                    // second send
+                    if (!to_Send_later.equals(" ") && !to_send_first.equals("option")){
+                        bytes = to_Send_later.getBytes(); //sending the user id to server
+                        dOut.write(bytes);
+                        dOut.flush(); // send off the data
+                        s = "";
+                        String x = to_Send_later.substring(0,1);
+                        if (!x.equals("op")) { // if its the option then it does need to receive an answer in this activity
+                            bytes_received = new byte[100];
+                            dIn.read(bytes_received); //receiving bytes message from server
+                            s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                            server_message.setText(s);
+                        }
+
+
+                    }
                 }
                 catch (Exception e){
                     e.printStackTrace();
