@@ -2,13 +2,24 @@ package com.example.openingscreen;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -20,10 +31,13 @@ public class ChoosingActivity extends AppCompatActivity {
     Button send_choice;
     TextView title_election_name;
 
+    BottomNavigationView bottomNavigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choosing);
+        button_dialog_related();
         send_choice = findViewById(R.id.candidate_choice);
         title_election_name = findViewById(R.id.election_name);
         RadioButton[] buttons = {findViewById(R.id.radio_option1), findViewById(R.id.radio_option2), findViewById(R.id.radio_option3), findViewById(R.id.radio_option4), findViewById(R.id.radio_option5), findViewById(R.id.radio_option6)};
@@ -144,6 +158,37 @@ public class ChoosingActivity extends AppCompatActivity {
             }
         });
         thread.start();
+    }
+
+    public void button_dialog_related(){
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+
+        bottomNavigationView.setBackground(null);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+
+            int id = item.getItemId();
+            if (id == R.id.home){
+                startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+            }
+            if (id == R.id.createactivity){
+                startActivity(new Intent(getApplicationContext(), CreateActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+            }
+            if (id == R.id.my){
+                startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+            }
+
+            return true;
+        });
+
     }
 
 }

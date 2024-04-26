@@ -7,12 +7,18 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -25,7 +31,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -36,25 +44,27 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
 
-public class HomeActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+public class HomeActivity extends AppCompatActivity  {
     FirebaseAuth auth;
     Button logout_btn;
     TextView email;
     FirebaseUser user;
     TextView server_message;
     Button choose_btn;
-    EditText message_to_send;
     String[] election_options = {"election4", "elections1", "gvnhf"};
     AutoCompleteTextView autocompleteTxt;
     ArrayAdapter<String> adapter_election_options;
     String election_option;
-    Button creating;
-    Button finished_creating;
+
+    FloatingActionButton fab;
+    BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        button_dialog_related();
 
         auth = FirebaseAuth.getInstance();
         logout_btn = findViewById(R.id.logout_btn);
@@ -65,34 +75,11 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
 
         choose_btn = findViewById(R.id.choose);
         server_message = findViewById(R.id.servermessage);
-        message_to_send = findViewById(R.id.messagetosend);
-        creating = findViewById(R.id.creating);
-
-        EditText[] candidate_names = {findViewById(R.id.candidate_name1), findViewById(R.id.candidate_name2), findViewById(R.id.candidate_name3), findViewById(R.id.candidate_name4), findViewById(R.id.candidate_name5), findViewById(R.id.candidate_name6)};
-
-        finished_creating = findViewById(R.id.finished_creating);
 
         autocompleteTxt = findViewById(R.id.auto_complete_txt);
         adapter_election_options = new ArrayAdapter<String>(this,R.layout.list_elections_options, election_options);
 
         autocompleteTxt.setAdapter(adapter_election_options);
-        ImageView[] candidate_pictures = {findViewById(R.id.adding_photo_one), findViewById(R.id.adding_photo_two), findViewById(R.id.adding_photo_three), findViewById(R.id.adding_photo_four), findViewById(R.id.adding_photo_five), findViewById(R.id.adding_photo_six)};
-        // image picker
-
-
-        //candidates number options
-        Spinner spinner = (Spinner) findViewById(R.id.planets_spinner);
-        // Create an ArrayAdapter using the string array and a default spinner layout.
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.planets_array,
-                android.R.layout.simple_spinner_item
-        );
-        // Specify the layout to use when the list of choices appears.
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        // Apply the adapter to the spinner.
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
 
 
 
@@ -101,23 +88,6 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 election_option = parent.getItemAtPosition(position).toString();
                 Toast.makeText(getApplicationContext(), "election_option: " + election_option, Toast.LENGTH_SHORT).show();
-            }
-        });
-        creating.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // setting the hidden creating options visible
-                message_to_send.setVisibility(View.VISIBLE); //the name of election
-                spinner.setVisibility(View.VISIBLE);
-            }
-        });
-
-        finished_creating.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                client("create", String.valueOf(message_to_send.getText()));
-                client(Get_candidate_names(candidate_names), ""); // sending the name of the new election
-                // sending the name of candidates
             }
         });
 
@@ -140,66 +110,6 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
                 finish();
             }
         });
-
-        for (int i = 0; i<candidate_pictures.length; i++){
-            Pick_picture(candidate_pictures[i]);
-        }
-
-
-    }
-    private String Get_candidate_names(EditText[] candidate_names){
-        // function returns string of names of the candidates
-        String string_candidate_names = "";
-        for (int i = 0; i< candidate_names.length; i++){
-            if (! candidate_names[i].getText().toString().matches("")){
-                // if the editext is not empty
-                string_candidate_names += candidate_names[i].getText() + ",";
-            }
-        }
-        return string_candidate_names;
-    }
-    private void Pick_picture(ImageView imageview){
-        // the function make that when clicked on add image it will add
-        ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
-                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-                    // Callback is invoked after the user selects a media item or closes the
-                    // photo picker.
-                    if (uri != null) {
-                        Log.d("PhotoPicker", "Selected URI: " + uri);
-                    } else {
-                        Log.d("PhotoPicker", "No media selected");
-                    }
-                });
-        imageview.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Launch the photo picker and let the user choose only images.
-                pickMedia.launch(new PickVisualMediaRequest.Builder()
-                        .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
-                        .build());
-            }
-        });
-    }
-    private void Are_fields_full(){
-        // function checks if all fields are full
-        // if they are not then it asks the user to fill it
-
-        //todo
-    }
-    private void SetVisible(int number_of_candidates, EditText[] candidate_names, ImageView[] candidate_photos){
-        // function make the creating election options visible according to the number of candidates
-        finished_creating.setVisibility(View.VISIBLE);
-
-        for (int i = 0; i < number_of_candidates; i++){
-            // sets the candidates to structure visible
-            candidate_names[i].setVisibility(View.VISIBLE);
-            candidate_photos[i].setVisibility(View.VISIBLE);
-        }
-        for (int i = number_of_candidates; i < candidate_photos.length; i++){
-            // sets the rest GONE
-            candidate_names[i].setVisibility(View.GONE);
-            candidate_photos[i].setVisibility(View.GONE);
-        }
 
     }
     private void GetUserStatus(){
@@ -270,21 +180,37 @@ public class HomeActivity extends AppCompatActivity implements AdapterView.OnIte
         });
         thread.start();
     }
+    public void button_dialog_related(){
+        bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        fab = findViewById(R.id.fab);
+        bottomNavigationView.setSelectedItemId(R.id.home);
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // An item is selected. You can retrieve the selected item using
-        // parent.getItemAtPosition(pos).
-        EditText[] candidate_names = {findViewById(R.id.candidate_name1), findViewById(R.id.candidate_name2), findViewById(R.id.candidate_name3), findViewById(R.id.candidate_name4), findViewById(R.id.candidate_name5), findViewById(R.id.candidate_name6)};
-        ImageView[] candidate_pictures = {findViewById(R.id.adding_photo_one), findViewById(R.id.adding_photo_two), findViewById(R.id.adding_photo_three), findViewById(R.id.adding_photo_four), findViewById(R.id.adding_photo_five), findViewById(R.id.adding_photo_six)};
-        String selected_number_of_candidates = parent.getItemAtPosition(position).toString();
-        SetVisible(Integer.valueOf(selected_number_of_candidates), candidate_names, candidate_pictures);
-        Toast.makeText(HomeActivity.this, selected_number_of_candidates ,
-                Toast.LENGTH_LONG).show();
+        bottomNavigationView.setBackground(null);
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+
+            int id = item.getItemId();
+            if (id == R.id.home){
+                startActivity(new Intent(getApplicationContext(), HomeActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+            }
+            if (id == R.id.my){
+                startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+            }
+            if (id == R.id.createactivity){
+                startActivity(new Intent(getApplicationContext(), CreateActivity.class));
+                overridePendingTransition(0, 0);
+                finish();
+                return true;
+            }
+
+            return true;
+        });
+
     }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
 }
