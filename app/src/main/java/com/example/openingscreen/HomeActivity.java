@@ -6,6 +6,7 @@ import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -29,6 +30,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,22 +48,24 @@ import java.io.DataOutputStream;
 import java.io.DataInputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.ArrayList;
 
 
 public class HomeActivity extends AppCompatActivity  {
     FirebaseAuth auth;
-    Button logout_btn;
     TextView email;
     FirebaseUser user;
     TextView server_message;
     Button choose_btn;
-    String[] election_options = {"election4", "elections1", "gvnhf"};
-    AutoCompleteTextView autocompleteTxt;
-    ArrayAdapter<String> adapter_election_options;
     String election_option;
 
     FloatingActionButton fab;
     BottomNavigationView bottomNavigationView;
+
+    SearchView searchView;
+    ListView listView;
+    ArrayList arrayList;
+    ArrayAdapter adapter;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -87,6 +92,7 @@ public class HomeActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_home);
 
         button_dialog_related();
+        search_related();
 
         auth = FirebaseAuth.getInstance();
         email = findViewById(R.id.userdetails);
@@ -97,20 +103,7 @@ public class HomeActivity extends AppCompatActivity  {
         choose_btn = findViewById(R.id.choose);
         server_message = findViewById(R.id.servermessage);
 
-        autocompleteTxt = findViewById(R.id.auto_complete_txt);
-        adapter_election_options = new ArrayAdapter<String>(this,R.layout.list_elections_options, election_options);
 
-        autocompleteTxt.setAdapter(adapter_election_options);
-
-
-
-        autocompleteTxt.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                election_option = parent.getItemAtPosition(position).toString();
-                Toast.makeText(getApplicationContext(), "election_option: " + election_option, Toast.LENGTH_SHORT).show();
-            }
-        });
 
         choose_btn.setOnClickListener(new View.OnClickListener() { //if you click the choose button it will go to choosing activity
             @Override
@@ -132,7 +125,8 @@ public class HomeActivity extends AppCompatActivity  {
         } else { //if user already logined
             email.setText(user.getEmail()); //the email is written in the home screen
 
-            client(user.getUid(),"askingforoptions");
+            //client(user.getUid(),"askingforoptions");
+            Get_election_names();  // adds to the list the election names
             //sends the userid and also asks for options
         }
     }
@@ -183,6 +177,83 @@ public class HomeActivity extends AppCompatActivity  {
 
 
                     }
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+    }
+    public void search_related(){
+        searchView = findViewById(R.id.search_bar);
+        listView = findViewById(R.id.list_item);
+
+        arrayList = new ArrayList();
+
+        adapter=new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1,arrayList);
+
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String choice = parent.getItemAtPosition(position).toString();
+                Toast.makeText(getApplicationContext(), "election_option selected: " + choice, Toast.LENGTH_SHORT).show();
+                client("option", ("op" + choice));  // sending choice to server
+                Intent intent = new Intent(HomeActivity.this, ChoosingActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                adapter.getFilter().filter(query);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                adapter.getFilter().filter(newText);
+                return false;
+            }
+        });
+
+    }
+    private void Get_election_names() {
+        //sends the userid and also asks for options
+        // function receives the names from the server
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    Client client = Client.getClient_instance();
+                    Socket socket = client.getSocket();
+                    DataInputStream dIn = client.getdin();
+                    DataOutputStream dOut = client.getdout();
+
+                    byte[] bytes = user.getUid().getBytes(); //sending the user id to server
+                    dOut.write(bytes);
+                    dOut.flush(); // send off the data
+
+                    byte[] bytes_received = new byte[100];
+                    dIn.read(bytes_received); //receiving bytes message from server
+
+
+                    bytes = "askingforoptions".getBytes(); //sending the user id to asking for options
+                    dOut.write(bytes);
+                    dOut.flush(); // send off the data
+
+                    dIn.read(bytes_received); //receiving bytes message from server
+
+
+                    String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    String[] election_names = s.trim().split(",");
+                    for (int i=0; i<election_names.length; i++){
+                        arrayList.add(election_names[i]);
+                    }
+
                 }
                 catch (Exception e){
                     e.printStackTrace();

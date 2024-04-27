@@ -18,7 +18,7 @@ public class Client {
    private DataOutputStream dout;
 
     private Client() throws IOException {
-        socket=new Socket("192.168.1.34", 1234);
+        socket=new Socket("192.168.1.35", 1234);
         dout = new DataOutputStream(socket.getOutputStream());
         din = new DataInputStream(socket.getInputStream());
     }
