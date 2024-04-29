@@ -13,6 +13,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -39,6 +40,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 public class CreateActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
@@ -110,12 +112,57 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
         finished_creating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                client("create", String.valueOf(message_to_send.getText()));
-                client(Get_candidate_names(candidate_names), Get_candidate_pictures(candidate_pictures)); // sending the name of the new election
+                //client(String.valueOf(message_to_send.getText()), Get_candidate_names(candidate_names), Get_candidate_pictures(candidate_pictures)); // sending the name of the new election
                 // sending the name of candidates
-                startActivity(new Intent(getApplicationContext(), HomeActivity.class));
-                overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
-                finish();
+
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try{
+                            Client client = Client.getClient_instance();
+                            Socket socket = client.getSocket();
+                            DataOutputStream dOut = client.getdout();
+                            DataInputStream dIn = client.getdin();
+
+                            // first send- send "create" which is code word
+                            byte[] bytes = "create".getBytes(); //sending the user id to server
+                            dOut.write(bytes);
+                            dOut.flush(); // send off the data
+
+                            String s = "";
+                            byte[] bytes_received = new byte[100];
+                            dIn.read(bytes_received); //receiving bytes message from server
+                            s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+
+
+                            // second send - sending the election name, names and photos
+                            String to_send = message_to_send.getText().toString() + "," + Get_candidate_names(candidate_names) + Get_candidate_pictures(candidate_pictures);
+                            bytes = to_send.getBytes(); //sending the user id to server
+                            dOut.write(bytes);
+                            dOut.flush(); // send off the data
+
+                            s = "";
+                            bytes_received = new byte[100];
+                            dIn.read(bytes_received); //receiving bytes message from server
+                            s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                            if (!s.equals("nameexists")){
+                                Toast.makeText(CreateActivity.this,"successfully created",Toast.LENGTH_SHORT).show();
+                            }
+                            else{
+                                Toast.makeText(CreateActivity.this, "this election name already exist" ,
+                                        Toast.LENGTH_LONG).show();
+                            }
+
+
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                thread.start();
+
+
 
             }
         });
@@ -212,8 +259,8 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
         // function returns string of names of the candidates
         String string_candidate_names = "";
         for (int i = 0; i< candidate_names.length; i++){
-            if (! candidate_names[i].getText().toString().matches("")){
-                // if the editext is not empty
+            if ( candidate_names[i].getVisibility() == View.VISIBLE){
+                // if the editext is visible
                 string_candidate_names += candidate_names[i].getText() + ",";
             }
         }
@@ -221,14 +268,15 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
     }
     private String Get_candidate_pictures(ImageView[] candidate_pictures){
         // function returns string of names of the candidates
-        String string_candidate_names = "";
+        String string_candidate_pics = "";
         for (int i = 0; i< candidate_pictures.length; i++){
-            if (! candidate_pictures[i].getTag().toString().matches("")){
-                // if the editext is not empty
-                string_candidate_names += candidate_pictures[i].getTag().toString() + ",";
+            if ( candidate_pictures[i].getVisibility() == View.VISIBLE){
+                // if the editext is visible
+                Uri imageUri = (Uri) candidate_pictures[i].getTag();
+                string_candidate_pics += imageUri.toString() + ",";
             }
         }
-        return string_candidate_names;
+        return string_candidate_pics;
     }
     private void Pick_picture(ImageView imageview){
         // the function make that when clicked on add image it will add
@@ -238,6 +286,7 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
                     // photo picker.
                     if (uri != null) {
                         imageview.setImageURI(uri);
+                        imageview.setTag(uri);
                         Log.d("PhotoPicker", "Selected URI: " + uri);
                     } else {
                         Log.d("PhotoPicker", "No media selected");
@@ -279,7 +328,7 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
         }
 
     }
-    private void client(String to_send_first, String to_Send_later) {
+    private void client(String name_of_election, String candidate_name, String candidate_pictures) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -288,25 +337,53 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
                     Socket socket = client.getSocket();
                     DataOutputStream dOut = client.getdout();
                     DataInputStream dIn = client.getdin();
-                    byte[] bytes = to_send_first.getBytes(); //sending the user id to server
+
+                    // first send- send "create" which is code word
+                    byte[] bytes = "create".getBytes(); //sending the user id to server
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
+
                     String s = "";
                     byte[] bytes_received = new byte[100];
                     dIn.read(bytes_received); //receiving bytes message from server
                     s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
 
 
-                    // second send
-                    bytes = to_Send_later.getBytes(); //sending the user id to server
+                    // second send - sending the election name
+                    bytes = name_of_election.getBytes(); //sending the user id to server
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
+
                     s = ""; // if its the option then it does need to receive an answer in this activity
                     bytes_received = new byte[100];
                     dIn.read(bytes_received); //receiving bytes message from server
-                    //s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    if (!s.equals("nameexists")){
+                        // third send - sending the candidate names
+                        bytes = candidate_name.getBytes(); //sending the user id to server
+                        dOut.write(bytes);
+                        dOut.flush(); // send off the data
 
+                        s = ""; // if its the option then it does need to receive an answer in this activity
+                        bytes_received = new byte[100];
+                        dIn.read(bytes_received); //receiving bytes message from server
+                        s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
 
+                        // forth send (and last) - sending the pictures
+                        bytes = candidate_pictures.getBytes(); //sending the user id to server
+                        dOut.write(bytes);
+                        dOut.flush(); // send off the data
+
+                        s = ""; // if its the option then it does need to receive an answer in this activity
+                        bytes_received = new byte[100];
+                        dIn.read(bytes_received); //receiving bytes message from server
+                        s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+
+                    }
+                    else{
+                        Toast.makeText(CreateActivity.this, "this election name already exist" ,
+                                Toast.LENGTH_LONG).show();
+                    }
 
 
                 }
