@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +42,8 @@ public class ChoosingActivity extends AppCompatActivity {
         send_choice = findViewById(R.id.candidate_choice);
         title_election_name = findViewById(R.id.election_name);
         RadioButton[] buttons = {findViewById(R.id.radio_option1), findViewById(R.id.radio_option2), findViewById(R.id.radio_option3), findViewById(R.id.radio_option4), findViewById(R.id.radio_option5), findViewById(R.id.radio_option6)};
-        receiving_candidates(buttons);
+        ImageView[] photos = {findViewById(R.id.photo_one), findViewById(R.id.photo_two), findViewById(R.id.photo_three), findViewById(R.id.photo_four), findViewById(R.id.photo_five), findViewById(R.id.photo_six)};
+        receiving_candidates(buttons, photos);
 
         send_choice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,7 +129,7 @@ public class ChoosingActivity extends AppCompatActivity {
         }
         return newArr;
     }
-    private void receiving_candidates(RadioButton[] buttons) {
+    private void receiving_candidates(RadioButton[] buttons, ImageView[] photos) {
         // function receives the candidates from the server
         Thread thread = new Thread(new Runnable() {
             @Override
@@ -150,6 +152,7 @@ public class ChoosingActivity extends AppCompatActivity {
 
                     for (int i = list_of_candidate.length; i<buttons.length; i++){
                         buttons[i].setVisibility(View.GONE);
+                        photos[i].setVisibility(View.GONE);
                     }
                 }
                 catch (Exception e){
@@ -189,6 +192,17 @@ public class ChoosingActivity extends AppCompatActivity {
             return true;
         });
 
+    }
+    public void onRadioButtonClicked(View view) {
+        // Check which radio button was clicked
+        RadioButton clickedRadioButton = (RadioButton) view;
+        RadioButton[] buttons = {findViewById(R.id.radio_option1), findViewById(R.id.radio_option2), findViewById(R.id.radio_option3), findViewById(R.id.radio_option4), findViewById(R.id.radio_option5), findViewById(R.id.radio_option6)};
+        // Uncheck all radio buttons in the group
+        for (int i = 0; i < buttons.length; i++) {
+            if (buttons[i] != clickedRadioButton) {
+                buttons[i].setChecked(false);
+            }
+        }
     }
 
 }

@@ -25,6 +25,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,6 +44,9 @@ import java.net.Socket;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
+import java.util.Calendar;
+import android.app.DatePickerDialog;
+
 public class CreateActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
     Button creating;
     Button finished_creating;
@@ -50,6 +54,9 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
     EditText message_to_send;
     FloatingActionButton fab;
     BottomNavigationView bottomNavigationView;
+    Button pickDateBtn;
+    TextView selectedDatedisplay;
+    boolean is_date_selected;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_item, menu);
@@ -75,7 +82,7 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
 
         button_dialog_related();
 
-        message_to_send = findViewById(R.id.messagetosend);
+        message_to_send = findViewById(R.id.election_name);
 
         creating = findViewById(R.id.creating);
 
@@ -100,6 +107,9 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
+
+        is_date_selected = false; // sets the is date selected false because no date was selected yet.
+
         creating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,57 +122,54 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
         finished_creating.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //client(String.valueOf(message_to_send.getText()), Get_candidate_names(candidate_names), Get_candidate_pictures(candidate_pictures)); // sending the name of the new election
-                // sending the name of candidates
+                if (Are_fields_full(candidate_names, candidate_pictures, message_to_send, is_date_selected) == true){
+                    Thread thread = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try{
+                                Client client = Client.getClient_instance();
+                                Socket socket = client.getSocket();
+                                DataOutputStream dOut = client.getdout();
+                                DataInputStream dIn = client.getdin();
 
-                Thread thread = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try{
-                            Client client = Client.getClient_instance();
-                            Socket socket = client.getSocket();
-                            DataOutputStream dOut = client.getdout();
-                            DataInputStream dIn = client.getdin();
+                                // first send- send "create" which is code word
+                                byte[] bytes = "create".getBytes(); //sending the user id to server
+                                dOut.write(bytes);
+                                dOut.flush(); // send off the data
 
-                            // first send- send "create" which is code word
-                            byte[] bytes = "create".getBytes(); //sending the user id to server
-                            dOut.write(bytes);
-                            dOut.flush(); // send off the data
-
-                            String s = "";
-                            byte[] bytes_received = new byte[100];
-                            dIn.read(bytes_received); //receiving bytes message from server
-                            s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                                String s = "";
+                                byte[] bytes_received = new byte[100];
+                                dIn.read(bytes_received); //receiving bytes message from server
+                                s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
 
 
-                            // second send - sending the election name, names and photos
-                            String to_send = message_to_send.getText().toString() + "," + Get_candidate_names(candidate_names) + Get_candidate_pictures(candidate_pictures);
-                            bytes = to_send.getBytes(); //sending the user id to server
-                            dOut.write(bytes);
-                            dOut.flush(); // send off the data
+                                // second send - sending the election name, names and photos
+                                String to_send = message_to_send.getText().toString() + "," + Get_candidate_names(candidate_names) + Get_candidate_pictures(candidate_pictures);
+                                bytes = to_send.getBytes(); //sending the user id to server
+                                dOut.write(bytes);
+                                dOut.flush(); // send off the data
 
-                            s = "";
-                            bytes_received = new byte[100];
-                            dIn.read(bytes_received); //receiving bytes message from server
-                            s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-                            if (!s.equals("nameexists")){
-                                Toast.makeText(CreateActivity.this,"successfully created",Toast.LENGTH_SHORT).show();
+                                s = "";
+                                bytes_received = new byte[100];
+                                dIn.read(bytes_received); //receiving bytes message from server
+                                s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                                if (!s.equals("nameexists")){
+                                    Toast.makeText(CreateActivity.this,"successfully created",Toast.LENGTH_SHORT).show();
+                                }
+                                else{
+                                    Toast.makeText(CreateActivity.this, "this election name already exist" ,
+                                            Toast.LENGTH_LONG).show();
+                                }
+
+
                             }
-                            else{
-                                Toast.makeText(CreateActivity.this, "this election name already exist" ,
-                                        Toast.LENGTH_LONG).show();
+                            catch (Exception e){
+                                e.printStackTrace();
                             }
-
-
                         }
-                        catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                });
-                thread.start();
-
-
+                    });
+                    thread.start();
+                }
 
             }
         });
@@ -170,6 +177,44 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
         for (int i = 0; i<candidate_pictures.length; i++){
             Pick_picture(candidate_pictures[i]);
         }
+        pickDateBtn = findViewById(R.id.btnpickdate);
+        selectedDatedisplay = findViewById(R.id.datedisplay);
+
+        pickDateBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // on below line we are getting
+                // the instance of our calendar.
+                Calendar c = Calendar.getInstance();
+
+                // on below line we are getting
+                // our day, month and year.
+                int year = c.get(Calendar.YEAR);
+                int month = c.get(Calendar.MONTH);
+                int day = c.get(Calendar.DAY_OF_MONTH);
+
+                // on below line we are creating a variable for date picker dialog.
+                DatePickerDialog datePickerDialog = new DatePickerDialog(
+                        // on below line we are passing context.
+                        CreateActivity.this,
+                        new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int year,
+                                                  int monthOfYear, int dayOfMonth) {
+                                // on below line we are setting date to our text view.
+                                selectedDatedisplay.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                                is_date_selected = true;
+                            }
+                        },
+                        // on below line we are passing year,
+                        // month and day for selected date in our date picker.
+                        year, month, day);
+                // at last we are calling show to
+                // display our date picker dialog.
+                datePickerDialog.show();
+            }
+        });
+
     }
     public void button_dialog_related(){
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -302,15 +347,27 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
             }
         });
     }
-    private void Are_fields_full(TextView[] candidate_names){
+    private boolean Are_fields_full(EditText[] candidate_names, ImageView[] pics, EditText election_name, boolean is_due_date_picked){
         // function checks if all fields are full
         // if they are not then it asks the user to fill it
-        for (int i = 0; i< candidate_names.length; i++){
-            if (! candidate_names[i].getTag().toString().matches("")){
-                // if the editext is not empty
-                }
+
+        //check the candidates names was field
+        for (int i = 0; i< candidate_names.length; i++) {
+            if (candidate_names[i].getText().toString().matches("")) {
+                // if the editext is empty
+                Toast.makeText(CreateActivity.this, "You did not fill all fields", Toast.LENGTH_SHORT).show();
+                return false;
+            }
         }
-        //todo
+        // todo check if the pics have changed
+
+        //check the election name was field
+        if (election_name.getText().toString().matches("")) {
+            // if the editext is empty
+            Toast.makeText(CreateActivity.this, "You did not fill all fields", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return is_due_date_picked;  // return if also the due date was picked
     }
     private void SetVisible(int number_of_candidates, EditText[] candidate_names, ImageView[] candidate_photos){
         // function make the creating election options visible according to the number of candidates

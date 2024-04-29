@@ -38,7 +38,7 @@
             android:visibility="gone" />
 
         <EditText
-            android:id="@+id/messagetosend"
+            android:id="@+id/election_name"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:ems="10"
@@ -244,13 +244,35 @@
             </LinearLayout>
         </LinearLayout>
 
-        <Button
-            android:id="@+id/finished_creating"
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="create election"
-            android:textSize="25sp"
-            android:visibility="visible" />
+            android:orientation="horizontal"
+            android:layout_gravity="center">
+        <Button
+            android:id="@+id/btnpickdate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="click to pick election due date"
+            android:textSize="10sp"
+            android:visibility="visible"
+            android:layout_margin="5dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/datedisplay"
+            android:text="date" />
+            <Button
+                android:id="@+id/finished_creating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="create election"
+                android:textSize="10sp"
+                android:visibility="visible" />
+        </LinearLayout>
+
+
 
     </LinearLayout>
 
