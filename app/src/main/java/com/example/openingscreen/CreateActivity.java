@@ -353,9 +353,9 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
 
         //check the candidates names was field
         for (int i = 0; i< candidate_names.length; i++) {
-            if (candidate_names[i].getText().toString().matches("")) {
+            if (candidate_names[i].getText().toString().matches("") && candidate_names[i].getVisibility() == View.VISIBLE) {
                 // if the editext is empty
-                Toast.makeText(CreateActivity.this, "You did not fill all fields", Toast.LENGTH_SHORT).show();
+                Toast.makeText(CreateActivity.this, "You did not fill all name fields", Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
@@ -364,7 +364,7 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
         //check the election name was field
         if (election_name.getText().toString().matches("")) {
             // if the editext is empty
-            Toast.makeText(CreateActivity.this, "You did not fill all fields", Toast.LENGTH_SHORT).show();
+            Toast.makeText(CreateActivity.this, "You did not fill the election name", Toast.LENGTH_SHORT).show();
             return false;
         }
         return is_due_date_picked;  // return if also the due date was picked

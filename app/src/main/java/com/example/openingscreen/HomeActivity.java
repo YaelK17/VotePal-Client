@@ -56,7 +56,7 @@ public class HomeActivity extends AppCompatActivity  {
     TextView email;
     FirebaseUser user;
     TextView server_message;
-    Button choose_btn;
+    Button view_result_btn;
     String election_option;
 
     FloatingActionButton fab;
@@ -100,20 +100,51 @@ public class HomeActivity extends AppCompatActivity  {
 
         OnStart(); //checks if user had login
 
-        choose_btn = findViewById(R.id.choose);
+        view_result_btn = findViewById(R.id.view_results);
         server_message = findViewById(R.id.servermessage);
 
 
-
-        choose_btn.setOnClickListener(new View.OnClickListener() { //if you click the choose button it will go to choosing activity
+        view_result_btn.setOnClickListener(new View.OnClickListener() {
+            // asking for the results
             @Override
             public void onClick(View v) {
-                client("option", ("op" + election_option));
-                Intent intent = new Intent(HomeActivity.this, ChoosingActivity.class);
+//                Thread thread = new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try{
+//                            Client client = Client.getClient_instance();
+//                            Socket socket = client.getSocket();
+//                            DataOutputStream dOut = client.getdout();
+//                            DataInputStream dIn = client.getdin();
+//                            byte[] bytes = "results".getBytes(); //asking for results
+//                            dOut.write(bytes);
+//                            dOut.flush(); // send off the data
+//                            String s = "";
+//                            byte[] bytes_received = new byte[100];
+//                            dIn.read(bytes_received); //receiving bytes message from server
+//                            s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+//
+//
+//                            // second send
+//                            // todo change results to the name of election
+//                            bytes = "results".getBytes(); //sends the election name that we need its results
+//                            dOut.write(bytes);
+//                            dOut.flush(); // send off the data
+//                            //we receive the results in results activity
+//
+//                        }
+//                        catch (Exception e){
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
+//                thread.start();
+                Intent intent = new Intent(HomeActivity.this, ResultsActivity.class);
                 startActivity(intent);
                 finish();
             }
         });
+
 
     }
     private void GetUserStatus(){
