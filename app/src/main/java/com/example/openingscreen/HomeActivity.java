@@ -64,8 +64,7 @@ public class HomeActivity extends AppCompatActivity  {
 
     SearchView searchView;
     ListView listView;
-    ArrayList arrayList;
-    ArrayAdapter adapter;
+    ArrayList<election_details> arrayList;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -220,11 +219,11 @@ public class HomeActivity extends AppCompatActivity  {
         searchView = findViewById(R.id.search_bar);
         listView = findViewById(R.id.list_item);
 
-        arrayList = new ArrayList();
+        arrayList = new ArrayList<>();
 
-        adapter=new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1,arrayList);
+        election_adapter adapter = new election_adapter(this, R.layout.list_view_of_created, arrayList);
 
-        listView.setAdapter(adapter);
+        listView.setAdapter(adapter);  // setting the adapter
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -240,13 +239,21 @@ public class HomeActivity extends AppCompatActivity  {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                adapter.getFilter().filter(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                adapter.getFilter().filter(newText);
+                ArrayList<election_details> filtered_elections = new ArrayList<election_details>();
+                for (election_details election_details: arrayList) { // going through items in arraylist
+                    if (election_details.getElection_name().contains(newText)){
+                        filtered_elections.add(election_details);
+                    }
+
+                }
+                election_adapter new_adapter = new election_adapter(getApplicationContext(), R.layout.list_view_of_created, filtered_elections);
+
+                listView.setAdapter(new_adapter);  // setting the adapter
                 return false;
             }
         });
@@ -282,7 +289,7 @@ public class HomeActivity extends AppCompatActivity  {
                     String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
                     String[] election_names = s.trim().split(",");
                     for (int i=0; i<election_names.length; i++){
-                        arrayList.add(election_names[i]);
+                        arrayList.add(new election_details(R.drawable.baseline_green_circle_24, election_names[i], "due date: 10/5/2020"));
                     }
 
                 }

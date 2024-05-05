@@ -12,8 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20sp"
-        android:textColor="@color/light_blue"
-        android:fontFamily="sans-serif"
+        style="@style/TextAppearance.AppCompat.Title"
         android:text="my created elections"
         android:layout_margin="4dp"/>
 
@@ -31,8 +30,7 @@
         android:layout_height="wrap_content"
         android:text="elections I voted in"
         android:textSize="20sp"
-        android:textColor="@color/light_blue"
-        android:fontFamily="sans-serif"
+        style="@style/TextAppearance.AppCompat.Title"
         android:layout_margin="4dp"/>
 
     <ListView
