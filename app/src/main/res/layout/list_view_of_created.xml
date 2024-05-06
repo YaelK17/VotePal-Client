@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:padding="16dp"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/election_title"
+        android:layout_marginLeft="20dp"
+        style="@style/TextAppearance.AppCompat.Title"
+        android:text="election title"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/due_date"
+        android:textColor="@color/light_blue"
+        android:layout_below="@id/election_title"
+        android:maxLength="50"
+        android:singleLine="true"
+        android:layout_marginLeft="20dp"
+        style="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+        android:text="due date"
+        />
+
+    <ImageView
+        android:id="@+id/delete_image"
+        android:layout_width="25dp"
+        android:layout_height="55dp"
+        android:src="@drawable/baseline_delete_24"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp" />
+
+
+
+</RelativeLayout>
