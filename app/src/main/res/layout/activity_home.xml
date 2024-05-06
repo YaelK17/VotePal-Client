@@ -17,6 +17,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
     </androidx.appcompat.widget.SearchView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="All"
+            android:id="@+id/allFilter"
+            android:background="@color/light_blue"
+            android:onClick="allFilterTapped"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="Active"
+            android:id="@+id/activeFilter"
+            android:background="@color/light_blue"
+            android:onClick="activeFilterTapped"/>
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:text="inactive"
+            android:id="@+id/inactiveFilter"
+            android:background="@color/light_blue"
+            android:onClick="inactiveFilterTapped"/>
+
+    </LinearLayout>
     <ListView
         android:layout_width="match_parent"
         android:layout_height="320dp"

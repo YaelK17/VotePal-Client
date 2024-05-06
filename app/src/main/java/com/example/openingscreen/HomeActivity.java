@@ -13,6 +13,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -65,6 +66,8 @@ public class HomeActivity extends AppCompatActivity  {
     SearchView searchView;
     ListView listView;
     ArrayList<election_details> arrayList;
+    String selectedFilter = "all";
+    String currentSearchText = "";
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -215,7 +218,7 @@ public class HomeActivity extends AppCompatActivity  {
         });
         thread.start();
     }
-    public void search_related(){
+    public void search_related() {
         searchView = findViewById(R.id.search_bar);
         listView = findViewById(R.id.list_item);
 
@@ -244,20 +247,42 @@ public class HomeActivity extends AppCompatActivity  {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+//                ArrayList<election_details> filtered_elections = new ArrayList<election_details>();
+//                for (election_details election_details: arrayList) { // going through items in arraylist
+//                    if (election_details.getElection_name().contains(newText)){
+//                        filtered_elections.add(election_details);
+//                    }
+//
+//                }
+
+                currentSearchText = newText;
                 ArrayList<election_details> filtered_elections = new ArrayList<election_details>();
-                for (election_details election_details: arrayList) { // going through items in arraylist
-                    if (election_details.getElection_name().contains(newText)){
-                        filtered_elections.add(election_details);
+
+                for (election_details election_details : arrayList) // going through items in arraylist
+                {
+                    if (election_details.getElection_name().contains(newText)) {
+                        if (selectedFilter.equals("all")) {
+                            filtered_elections.add(election_details);
+                        } else {
+                            if (election_details.getImage() == R.drawable.baseline_green_circle_24 && selectedFilter.equals("active")) {
+                                filtered_elections.add(election_details);
+                            }
+                            if (election_details.getImage() == R.drawable.baseline_red_circle_24 && selectedFilter.equals("inactivefilte")) {
+                                filtered_elections.add(election_details);
+                            }
+                        }
                     }
 
                 }
+
+
                 election_adapter new_adapter = new election_adapter(getApplicationContext(), R.layout.list_view_of_created, filtered_elections);
 
                 listView.setAdapter(new_adapter);  // setting the adapter
                 return false;
             }
-        });
 
+        });
     }
     private void Get_election_names() {
         //sends the userid and also asks for options
@@ -333,4 +358,60 @@ public class HomeActivity extends AppCompatActivity  {
 
     }
 
+    private void filterList(String status)
+    {
+        selectedFilter = status;
+
+        ArrayList<election_details> filteredelections = new ArrayList<election_details>();
+
+        for(election_details election_details: arrayList)
+        {
+            if (election_details.getImage() == R.drawable.baseline_green_circle_24 && selectedFilter.equals("active")) {
+                if(currentSearchText == "")
+                {
+                    filteredelections.add(election_details);
+                }
+                else
+                {
+                    if(election_details.getElection_name().contains(currentSearchText.toLowerCase()))
+                    {
+                        filteredelections.add(election_details);
+                    }
+                }
+            }
+            if (election_details.getImage() == R.drawable.baseline_red_circle_24 && selectedFilter.equals("inactivefilte")) {
+                if(currentSearchText == "")
+                {
+                    filteredelections.add(election_details);
+                }
+                else
+                {
+                    if(election_details.getElection_name().contains(currentSearchText.toLowerCase()))
+                    {
+                        filteredelections.add(election_details);
+                    }
+                }
+            }
+
+        }
+
+        election_adapter adapter = new election_adapter(getApplicationContext(), R.layout.list_view_of_created, filteredelections);
+        listView.setAdapter(adapter);
+    }
+
+
+    public void allFilterTapped(View view) {
+        selectedFilter = "all";
+
+        election_adapter adapter = new election_adapter(getApplicationContext(), R.layout.list_view_of_created, arrayList);
+        listView.setAdapter(adapter);
+    }
+
+    public void activeFilterTapped(View view) {
+        filterList("active");
+    }
+
+    public void inactiveFilterTapped(View view) {
+        filterList("inactive");
+    }
 }
