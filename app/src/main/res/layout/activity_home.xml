@@ -28,7 +28,9 @@
             android:layout_height="match_parent"
             android:text="All"
             android:id="@+id/allFilter"
-            android:background="@color/light_blue"
+            android:stateListAnimator="@null"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/white"
             android:onClick="allFilterTapped"/>
 
         <Button
@@ -36,8 +38,10 @@
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:text="Active"
+            android:stateListAnimator="@null"
             android:id="@+id/activeFilter"
-            android:background="@color/light_blue"
+            android:textColor="@color/black"
+            android:backgroundTint="@color/white"
             android:onClick="activeFilterTapped"/>
 
         <Button
@@ -46,7 +50,9 @@
             android:layout_height="match_parent"
             android:text="inactive"
             android:id="@+id/inactiveFilter"
-            android:background="@color/light_blue"
+            android:textColor="@color/black"
+            android:stateListAnimator="@null"
+            android:backgroundTint="@color/white"
             android:onClick="inactiveFilterTapped"/>
 
     </LinearLayout>

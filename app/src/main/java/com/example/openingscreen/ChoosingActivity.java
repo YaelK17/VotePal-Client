@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -31,6 +33,8 @@ import java.util.ArrayList;
 public class ChoosingActivity extends AppCompatActivity {
     Button send_choice;
     TextView title_election_name;
+    FirebaseAuth auth;
+    FirebaseUser user;
 
     BottomNavigationView bottomNavigationView;
 
@@ -38,6 +42,10 @@ public class ChoosingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choosing);
+
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+
         button_dialog_related();
         send_choice = findViewById(R.id.candidate_choice);
         title_election_name = findViewById(R.id.election_name);
@@ -89,30 +97,15 @@ public class ChoosingActivity extends AppCompatActivity {
                     Socket socket = client.getSocket();
                     DataInputStream dIn = client.getdin();
                     DataOutputStream dOut = client.getdout();
-                    byte[] bytes = "votefor".getBytes(); //sending votefor to server
+                    String to_send = "votefor" + "-" + user.getUid() + "-" + title_election_name.getText().toString() + "," + choice;
+                    byte[] bytes = to_send.getBytes(); //sending all info to server
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
-                    byte[] bytes_received = new byte[100];
-                    dIn.read(bytes_received); //receiving bytes message from server
-
-                    bytes = title_election_name.getText().toString().getBytes(); //sending the election name to server
-                    dOut.write(bytes);
-                    dOut.flush(); // send off the data
-                    bytes_received = new byte[100];
-                    dIn.read(bytes_received); //receiving bytes message from server
-
-                    bytes = choice.getBytes(); //sending the choice to server
-                    dOut.write(bytes);
-                    dOut.flush(); // send off the data
-                    bytes_received = new byte[100];
+                    byte[] bytes_received = new byte[1000];
                     dIn.read(bytes_received); //receiving bytes message from server
                     String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
                     Toast.makeText(ChoosingActivity.this, s ,
                             Toast.LENGTH_LONG).show();
-                    // moving back to home
-                    Intent intent = new Intent(ChoosingActivity.this, HomeActivity.class);
-                    startActivity(intent);
-                    finish();
                 }
                 catch (Exception e){
                     e.printStackTrace();
@@ -120,6 +113,10 @@ public class ChoosingActivity extends AppCompatActivity {
             }
         });
         thread.start();
+        // moving back to home
+        Intent intent = new Intent(ChoosingActivity.this, HomeActivity.class);
+        startActivity(intent);
+        finish();
     }
     private String[] RemoveFirstElement(String[] arr) {
         // function returns the array without its first element
@@ -131,18 +128,26 @@ public class ChoosingActivity extends AppCompatActivity {
     }
     private void receiving_candidates(RadioButton[] buttons, ImageView[] photos) {
         // function receives the candidates from the server
+        Intent previousIntent = getIntent();
+        String info = previousIntent.getStringExtra("detail");
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try{
                     Client client = Client.getClient_instance();
                     Socket socket = client.getSocket();
-                    DataInputStream dIn = client.getdin();
                     DataOutputStream dOut = client.getdout();
-
-                    byte[] bytes_received = new byte[100];
+                    DataInputStream dIn = client.getdin();
+                    String to_send = "option" + "-" + user.getUid() + "-" + info;  // sending all in one message
+                    byte[] bytes = to_send.getBytes(); //sending the user id to server
+                    dOut.write(bytes);
+                    dOut.flush(); // send off the data
+                    String s ;
+                    byte[] bytes_received = new byte[1000];
                     dIn.read(bytes_received); //receiving bytes message from server
-                    String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+
                     String[] list_of_candidate = s.trim().split(",");
                     title_election_name.setText(list_of_candidate[0]); // sets the title to be name of election
                     list_of_candidate = RemoveFirstElement(list_of_candidate); // removes the name of the election
@@ -154,6 +159,7 @@ public class ChoosingActivity extends AppCompatActivity {
                         buttons[i].setVisibility(View.GONE);
                         photos[i].setVisibility(View.GONE);
                     }
+
                 }
                 catch (Exception e){
                     e.printStackTrace();
@@ -161,6 +167,7 @@ public class ChoosingActivity extends AppCompatActivity {
             }
         });
         thread.start();
+
     }
 
     public void button_dialog_related(){

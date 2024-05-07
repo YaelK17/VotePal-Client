@@ -25,12 +25,19 @@ import android.widget.Toast;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class ProfileActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     ListView listView_creations, listView_voted_in;
+    FirebaseAuth auth;
+    FirebaseUser user;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -54,6 +61,8 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
         lists_related();
         button_dialog_related();
 
@@ -95,47 +104,67 @@ public class ProfileActivity extends AppCompatActivity {
 
 
         ArrayList<election_details> arrayList_of_created_elections = new ArrayList<>(); // arraylist for the elections the user created
+        ArrayList<election_details> arrayList_of_voted_elections = new ArrayList<>(); // arraylist for the elections the user created
 
-        //todo change into what we receive from server
-        arrayList_of_created_elections.add(new election_details(R.drawable.baseline_delete_24, "elections1", "due date: 10/5/2020"));
-        arrayList_of_created_elections.add(new election_details(R.drawable.baseline_delete_24, "2", "due date: 19/5/2120"));
-        arrayList_of_created_elections.add(new election_details(R.drawable.baseline_delete_24, "3", "due date: 1/7/2024"));
-        arrayList_of_created_elections.add(new election_details(R.drawable.baseline_delete_24, "4", "due date: 10/2/2021"));
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    Client client = Client.getClient_instance();
+                    Socket socket = client.getSocket();
+                    DataOutputStream dOut = client.getdout();
+                    DataInputStream dIn = client.getdin();
+                    String to_send = "profile" + "-" + user.getUid() + "-" + "";  // sending all in one message
+                    byte[] bytes = to_send.getBytes(); //sending the user id to server
+                    dOut.write(bytes);
+                    dOut.flush(); // send off the data
+                    String s ;
+                    byte[] bytes_received = new byte[1000];
+                    dIn.read(bytes_received); //receiving bytes message from server
+                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    String[] list_of_both = s.trim().split(",");
 
+                    // todo change into spliting based on "-"
+                    // Calculate the middle index
+                    int middleIndex = list_of_both.length / 2;
+
+                    // Create two arrays to hold elements
+                    String[] firstHalf = new String[middleIndex];
+                    String[] secondHalf = new String[list_of_both.length - middleIndex];
+
+                    // Copy elements from the original array to the first half array
+                    for (int i = 0; i < middleIndex; i++) {
+                        firstHalf[i] = list_of_both[i];
+                    }
+
+                    // Copy elements from the original array to the second half array
+                    for (int i = middleIndex; i < list_of_both.length; i++) {
+                        secondHalf[i - middleIndex] = list_of_both[i];
+                    }
+
+                    for (int i = 0; i < firstHalf.length; i++) {
+                         arrayList_of_created_elections.add(new election_details(R.drawable.baseline_delete_24, firstHalf[i], "due date: 10/5/2020"));
+                    }
+                    for (int i = 0; i < secondHalf.length; i++) {
+                        arrayList_of_voted_elections.add(new election_details(R.drawable.baseline_voted_vi_circle_24, secondHalf[i], "due date: 10/5/2020"));
+                    }
+
+
+
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
         election_adapter created_electionAdapter = new election_adapter(this, R.layout.list_view_of_created, arrayList_of_created_elections);
 
         listView_creations.setAdapter(created_electionAdapter);  // setting the adapter
 
-
-        ArrayList<election_details> arrayList_of_voted_elections = new ArrayList<>(); // arraylist for the elections the user created
-
-        //todo change into what we receive from server
-        arrayList_of_voted_elections.add(new election_details(R.drawable.baseline_voted_vi_circle_24, "elections1", "due date: 10/5/2020"));
-        arrayList_of_voted_elections.add(new election_details(R.drawable.baseline_voted_vi_circle_24, "2", "due date: 19/5/2120"));
-        arrayList_of_voted_elections.add(new election_details(R.drawable.baseline_voted_vi_circle_24, "3", "due date: 1/7/2024"));
-        arrayList_of_voted_elections.add(new election_details(R.drawable.baseline_voted_vi_circle_24, "4", "due date: 10/2/2021"));
-
         election_adapter voted_electionAdapter = new election_adapter(this, R.layout.list_view_of_created, arrayList_of_voted_elections);
 
         listView_voted_in.setAdapter(voted_electionAdapter);  // setting the adapter
-
-
-//        listView1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                String choice = parent.getItemAtPosition(position).toString();
-//                Toast.makeText(getApplicationContext(), "election_option selected: " + choice, Toast.LENGTH_SHORT).show();
-//                client("option", ("op" + choice));  // sending choice to server
-//                Intent intent = new Intent(ProfileActivity.this, ChoosingActivity.class);
-//                startActivity(intent);
-//                finish();
-//            }
-//        });
-
-
-
-
-
 
     }
 }

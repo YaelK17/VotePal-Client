@@ -37,6 +37,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -57,6 +58,9 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
     Button pickDateBtn;
     TextView selectedDatedisplay;
     boolean is_date_selected;
+    FirebaseAuth auth;
+    FirebaseUser user;
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_item, menu);
@@ -86,9 +90,15 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
 
         creating = findViewById(R.id.creating);
 
+        auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
+
         EditText[] candidate_names = {findViewById(R.id.candidate_name1), findViewById(R.id.candidate_name2), findViewById(R.id.candidate_name3), findViewById(R.id.candidate_name4), findViewById(R.id.candidate_name5), findViewById(R.id.candidate_name6)};
 
         finished_creating = findViewById(R.id.finished_creating);
+
+        pickDateBtn = findViewById(R.id.btnpickdate);
+        selectedDatedisplay = findViewById(R.id.datedisplay);
 
         ImageView[] candidate_pictures = {findViewById(R.id.adding_photo_one), findViewById(R.id.adding_photo_two), findViewById(R.id.adding_photo_three), findViewById(R.id.adding_photo_four), findViewById(R.id.adding_photo_five), findViewById(R.id.adding_photo_six)};
         // image picker
@@ -116,6 +126,10 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
                 // setting the hidden creating options visible
                 message_to_send.setVisibility(View.VISIBLE); //the name of election
                 spinner.setVisibility(View.VISIBLE);
+                finished_creating.setVisibility(View.VISIBLE);
+                pickDateBtn.setVisibility(View.VISIBLE);
+                selectedDatedisplay.setVisibility(View.VISIBLE);
+
             }
         });
 
@@ -133,7 +147,8 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
                                 DataInputStream dIn = client.getdin();
 
                                 // first send- send "create" which is code word
-                                byte[] bytes = "create".getBytes(); //sending the user id to server
+                                String to_send = "create" + "-" + user.getUid() + "-" + message_to_send.getText().toString() + "," + Get_candidate_names(candidate_names) + Get_candidate_pictures(candidate_pictures);
+                                byte[] bytes = to_send.getBytes(); //sending the user id to server
                                 dOut.write(bytes);
                                 dOut.flush(); // send off the data
 
@@ -142,17 +157,6 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
                                 dIn.read(bytes_received); //receiving bytes message from server
                                 s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
 
-
-                                // second send - sending the election name, names and photos
-                                String to_send = message_to_send.getText().toString() + "," + Get_candidate_names(candidate_names) + Get_candidate_pictures(candidate_pictures);
-                                bytes = to_send.getBytes(); //sending the user id to server
-                                dOut.write(bytes);
-                                dOut.flush(); // send off the data
-
-                                s = "";
-                                bytes_received = new byte[100];
-                                dIn.read(bytes_received); //receiving bytes message from server
-                                s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
                                 if (!s.equals("nameexists")){
                                     Toast.makeText(CreateActivity.this,"successfully created",Toast.LENGTH_SHORT).show();
                                 }
@@ -177,8 +181,6 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
         for (int i = 0; i<candidate_pictures.length; i++){
             Pick_picture(candidate_pictures[i]);
         }
-        pickDateBtn = findViewById(R.id.btnpickdate);
-        selectedDatedisplay = findViewById(R.id.datedisplay);
 
         pickDateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -384,72 +386,6 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
             candidate_photos[i].setVisibility(View.GONE);
         }
 
-    }
-    private void client(String name_of_election, String candidate_name, String candidate_pictures) {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    Client client = Client.getClient_instance();
-                    Socket socket = client.getSocket();
-                    DataOutputStream dOut = client.getdout();
-                    DataInputStream dIn = client.getdin();
-
-                    // first send- send "create" which is code word
-                    byte[] bytes = "create".getBytes(); //sending the user id to server
-                    dOut.write(bytes);
-                    dOut.flush(); // send off the data
-
-                    String s = "";
-                    byte[] bytes_received = new byte[100];
-                    dIn.read(bytes_received); //receiving bytes message from server
-                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-
-
-                    // second send - sending the election name
-                    bytes = name_of_election.getBytes(); //sending the user id to server
-                    dOut.write(bytes);
-                    dOut.flush(); // send off the data
-
-                    s = ""; // if its the option then it does need to receive an answer in this activity
-                    bytes_received = new byte[100];
-                    dIn.read(bytes_received); //receiving bytes message from server
-                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-                    if (!s.equals("nameexists")){
-                        // third send - sending the candidate names
-                        bytes = candidate_name.getBytes(); //sending the user id to server
-                        dOut.write(bytes);
-                        dOut.flush(); // send off the data
-
-                        s = ""; // if its the option then it does need to receive an answer in this activity
-                        bytes_received = new byte[100];
-                        dIn.read(bytes_received); //receiving bytes message from server
-                        s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-
-                        // forth send (and last) - sending the pictures
-                        bytes = candidate_pictures.getBytes(); //sending the user id to server
-                        dOut.write(bytes);
-                        dOut.flush(); // send off the data
-
-                        s = ""; // if its the option then it does need to receive an answer in this activity
-                        bytes_received = new byte[100];
-                        dIn.read(bytes_received); //receiving bytes message from server
-                        s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-
-                    }
-                    else{
-                        Toast.makeText(CreateActivity.this, "this election name already exist" ,
-                                Toast.LENGTH_LONG).show();
-                    }
-
-
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });
-        thread.start();
     }
 
     @Override

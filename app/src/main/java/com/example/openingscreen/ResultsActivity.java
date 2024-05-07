@@ -50,9 +50,12 @@ public class ResultsActivity extends AppCompatActivity {
         names = new String[]{"yael", "batel", "rachel"};
         percentages_from_server = new String[]{"30", "40", "30"};
 
+        receiving_results();
+
 
         // Creating a method setData()
         // to set the text in text view and pie chart
+
         setData( percentages_from_server, names);
 
     }
@@ -90,19 +93,27 @@ public class ResultsActivity extends AppCompatActivity {
         pieChart.startAnimation();
     }
     private void receiving_results() {
-        // function receives the candidates and percentages for each one from the server
+        // function receives the candidates from the server
+        Intent previousIntent = getIntent();
+        String info = previousIntent.getStringExtra("detail"); // received the election choice
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try{
                     Client client = Client.getClient_instance();
                     Socket socket = client.getSocket();
-                    DataInputStream dIn = client.getdin();
                     DataOutputStream dOut = client.getdout();
-
-                    byte[] bytes_received = new byte[100];
+                    DataInputStream dIn = client.getdin();
+                    String to_send = "results" + "-" + "Uid_doesnt_matter" + "-" + info;  // sending all in one message
+                    byte[] bytes = to_send.getBytes(); //sending the user id to server
+                    dOut.write(bytes);
+                    dOut.flush(); // send off the data
+                    String s ;
+                    byte[] bytes_received = new byte[1000];
                     dIn.read(bytes_received); //receiving bytes message from server
-                    String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+
                     String[] list_of_candidates_and_persetages = s.trim().split(",");  // now we have a list of candidates and percentages
 
                     // we know for sure the array will have even items because it has names and percentage for each name which we received from server
@@ -115,6 +126,7 @@ public class ResultsActivity extends AppCompatActivity {
                     System.arraycopy(list_of_candidates_and_persetages, 0, names, 0, halfSize);
                     System.arraycopy(list_of_candidates_and_persetages, halfSize, percentages_from_server, 0, halfSize);
 
+
                 }
                 catch (Exception e){
                     e.printStackTrace();
@@ -122,6 +134,7 @@ public class ResultsActivity extends AppCompatActivity {
             }
         });
         thread.start();
+
     }
     public void button_dialog_related(){
         bottomNavigationView = findViewById(R.id.bottomNavigationView);

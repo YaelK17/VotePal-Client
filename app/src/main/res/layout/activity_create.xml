@@ -9,33 +9,35 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
 
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:backgroundTint="@color/white"
-            android:src="@drawable/sharp_add_24" />
+            android:layout_alignParentTop="true"
+            android:orientation="horizontal"
+            android:padding="2dp">
 
-        <Button
-            android:id="@+id/creating"
-            android:textSize="25sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+" />
 
-        <Spinner
-            android:id="@+id/planets_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_margin="16dp"
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:backgroundTint="@color/white"
+                android:src="@drawable/sharp_add_24" />
 
-            android:visibility="gone" />
+            <Button
+                android:id="@+id/creating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+"
+                android:textSize="25sp" />
+
+        </LinearLayout>
 
         <EditText
             android:id="@+id/election_name"
@@ -47,6 +49,15 @@
             android:inputType="text"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <Spinner
+            android:id="@+id/planets_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_margin="16dp"
+
+            android:visibility="gone" />
+
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -248,35 +259,43 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_gravity="center">
-        <Button
-            android:id="@+id/btnpickdate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="click to pick election due date"
-            android:textSize="10sp"
-            android:visibility="visible"
-            android:layout_margin="5dp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/datedisplay"
-            android:text="date" />
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
             <Button
-                android:id="@+id/finished_creating"
+                android:id="@+id/btnpickdate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="create election"
-                android:textSize="10sp"
-                android:visibility="visible" />
+                android:layout_margin="5dp"
+                android:text="click to pick \n election due date"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/datedisplay"
+                android:layout_margin="2dp"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="date"
+                android:visibility="gone"/>
+
         </LinearLayout>
 
+        <Button
+            android:id="@+id/finished_creating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="create election"
+            android:textSize="20sp"
+            android:visibility="gone" />
 
 
     </LinearLayout>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout2"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -296,7 +315,7 @@
                 android:layout_marginEnd="20dp"
                 android:background="@android:color/transparent"
                 app:labelVisibilityMode="labeled"
-                app:menu="@menu/bottom_menu"/>
+                app:menu="@menu/bottom_menu" />
 
         </com.google.android.material.bottomappbar.BottomAppBar>
 

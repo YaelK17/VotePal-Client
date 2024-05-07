@@ -68,6 +68,7 @@ public class HomeActivity extends AppCompatActivity  {
     ArrayList<election_details> arrayList;
     String selectedFilter = "all";
     String currentSearchText = "";
+    String detail;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -110,37 +111,6 @@ public class HomeActivity extends AppCompatActivity  {
             // asking for the results
             @Override
             public void onClick(View v) {
-//                Thread thread = new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        try{
-//                            Client client = Client.getClient_instance();
-//                            Socket socket = client.getSocket();
-//                            DataOutputStream dOut = client.getdout();
-//                            DataInputStream dIn = client.getdin();
-//                            byte[] bytes = "results".getBytes(); //asking for results
-//                            dOut.write(bytes);
-//                            dOut.flush(); // send off the data
-//                            String s = "";
-//                            byte[] bytes_received = new byte[100];
-//                            dIn.read(bytes_received); //receiving bytes message from server
-//                            s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-//
-//
-//                            // second send
-//                            // todo change results to the name of election
-//                            bytes = "results".getBytes(); //sends the election name that we need its results
-//                            dOut.write(bytes);
-//                            dOut.flush(); // send off the data
-//                            //we receive the results in results activity
-//
-//                        }
-//                        catch (Exception e){
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
-//                thread.start();
                 Intent intent = new Intent(HomeActivity.this, ResultsActivity.class);
                 startActivity(intent);
                 finish();
@@ -167,57 +137,7 @@ public class HomeActivity extends AppCompatActivity  {
         super.onStart();
         GetUserStatus(); //checks if user had login
     }
-    private void client(String to_send_first, String to_Send_later) {
-            Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    Client client = Client.getClient_instance();
-                    Socket socket = client.getSocket();
-                    DataOutputStream dOut = client.getdout();
-                    DataInputStream dIn = client.getdin();
-                    byte[] bytes = to_send_first.getBytes(); //sending the user id to server
-                    dOut.write(bytes);
-                    dOut.flush(); // send off the data
-                    String s = "";
-                    byte[] bytes_received = new byte[100];
-                    dIn.read(bytes_received); //receiving bytes message from server
-                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
 
-                    if (to_send_first == "option"){
-                        bytes = to_Send_later.substring(2).getBytes(); //sending the user id to server
-                        dOut.write(bytes);
-                        dOut.flush();
-                    }
-                    else {
-                        server_message.setText(s); //setting message to be message from server
-                        //election_options = s.trim().split(",");
-                    }
-
-                    // second send
-                    if (!to_Send_later.equals(" ") && !to_send_first.equals("option")){
-                        bytes = to_Send_later.getBytes(); //sending the user id to server
-                        dOut.write(bytes);
-                        dOut.flush(); // send off the data
-                        s = "";
-                        String x = to_Send_later.substring(0,1);
-                        if (!x.equals("op")) { // if its the option then it does need to receive an answer in this activity
-                            bytes_received = new byte[100];
-                            dIn.read(bytes_received); //receiving bytes message from server
-                            s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-                            server_message.setText(s);
-                        }
-
-
-                    }
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });
-        thread.start();
-    }
     public void search_related() {
         searchView = findViewById(R.id.search_bar);
         listView = findViewById(R.id.list_item);
@@ -230,12 +150,21 @@ public class HomeActivity extends AppCompatActivity  {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String choice = parent.getItemAtPosition(position).toString();
+                String choice = ((election_details) parent.getItemAtPosition(position)).getElection_name();;
                 Toast.makeText(getApplicationContext(), "election_option selected: " + choice, Toast.LENGTH_SHORT).show();
-                client("option", ("op" + choice));  // sending choice to server
-                Intent intent = new Intent(HomeActivity.this, ChoosingActivity.class);
-                startActivity(intent);
-                finish();
+
+                // now there are two cases- if election has not reached due date then its green icon and we go to choosing activity
+                // else we go to the results
+                if (((election_details) parent.getItemAtPosition(position)).getImage() == R.drawable.baseline_green_circle_24) {
+                    Intent showDetail = new Intent(getApplicationContext(), ChoosingActivity.class);
+                    showDetail.putExtra("detail", choice);
+                    startActivity(showDetail);  // moves details between activities
+                }
+                else {
+                    Intent showDetail = new Intent(getApplicationContext(), ResultsActivity.class);
+                    showDetail.putExtra("detail", choice);
+                    startActivity(showDetail);  // moves details between activities
+                }
             }
         });
 
@@ -284,6 +213,36 @@ public class HomeActivity extends AppCompatActivity  {
 
         });
     }
+    private void client(String protocol_word, String info) {
+            Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    Client client = Client.getClient_instance();
+                    Socket socket = client.getSocket();
+                    DataOutputStream dOut = client.getdout();
+                    DataInputStream dIn = client.getdin();
+                    String to_send = protocol_word + "-" + user.getUid() + "-" + info;  // sending all in one message
+                    byte[] bytes = to_send.getBytes(); //sending the user id to server
+                    dOut.write(bytes);
+                    dOut.flush(); // send off the data
+                    String s ;
+                    byte[] bytes_received = new byte[1000];
+                    dIn.read(bytes_received); //receiving bytes message from server
+                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+
+                    if (protocol_word.equals("option")){
+                        detail = s; //converting bytes to string
+                    }
+
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+    }
     private void Get_election_names() {
         //sends the userid and also asks for options
         // function receives the names from the server
@@ -296,17 +255,14 @@ public class HomeActivity extends AppCompatActivity  {
                     DataInputStream dIn = client.getdin();
                     DataOutputStream dOut = client.getdout();
 
-                    byte[] bytes = user.getUid().getBytes(); //sending the user id to server
+                    String to_Send = "askingforoptions" + "-" + user.getUid() + "-" + "";
+
+
+                    byte[] bytes = to_Send.getBytes(); //sending the user id to asking for options
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
 
-                    byte[] bytes_received = new byte[100];
-                    dIn.read(bytes_received); //receiving bytes message from server
-
-
-                    bytes = "askingforoptions".getBytes(); //sending the user id to asking for options
-                    dOut.write(bytes);
-                    dOut.flush(); // send off the data
+                    byte[] bytes_received = new byte[1000];
 
                     dIn.read(bytes_received); //receiving bytes message from server
 
