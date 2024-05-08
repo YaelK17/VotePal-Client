@@ -176,14 +176,6 @@ public class HomeActivity extends AppCompatActivity  {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-//                ArrayList<election_details> filtered_elections = new ArrayList<election_details>();
-//                for (election_details election_details: arrayList) { // going through items in arraylist
-//                    if (election_details.getElection_name().contains(newText)){
-//                        filtered_elections.add(election_details);
-//                    }
-//
-//                }
-
                 currentSearchText = newText;
                 ArrayList<election_details> filtered_elections = new ArrayList<election_details>();
 

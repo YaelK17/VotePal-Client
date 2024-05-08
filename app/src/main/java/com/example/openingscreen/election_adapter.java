@@ -1,6 +1,7 @@
 package com.example.openingscreen;
 
 import android.content.Context;
+
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 import android.content.DialogInterface;
@@ -63,11 +68,38 @@ public class election_adapter extends ArrayAdapter<election_details>{
                     builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
 
                         // When the user click yes button then app will close
+                        Thread thread = new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try{
+                                    Client client = Client.getClient_instance();
+                                    Socket socket = client.getSocket();
+                                    DataOutputStream dOut = client.getdout();
+                                    DataInputStream dIn = client.getdin();
+                                    String to_send = "delete" + "-" + "id_doesnt_matter" + "-" + getItem(position).getElection_name();  // sending all in one message
+                                    byte[] bytes = to_send.getBytes(); //sending the user id to server
+                                    dOut.write(bytes);
+                                    dOut.flush(); // send off the data
+                                    String s ;
+                                    byte[] bytes_received = new byte[1000];
+                                    dIn.read(bytes_received); //receiving bytes message from server
+                                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                                    if (s.equals("success")){
+                                        Toast.makeText(mcontext, "deleted " + getItem(position).getElection_name(), Toast.LENGTH_SHORT).show();
 
-                        // todo send to sever the delete
+                                    }
 
-                        Toast.makeText(mcontext, "deleted " + getItem(position).getElection_name(), Toast.LENGTH_SHORT).show();
 
+                                }
+                                catch (Exception e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                        thread.start();
+
+                        Intent intent = new Intent(mcontext, ProfileActivity.class);
+                        mcontext.startActivity(intent);
                     });
 
                     // Set the Negative button with No name Lambda OnClickListener method is use of DialogInterface interface.
