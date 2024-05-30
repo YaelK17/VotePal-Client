@@ -76,7 +76,7 @@ public class election_adapter extends ArrayAdapter<election_details>{
                                     Socket socket = client.getSocket();
                                     DataOutputStream dOut = client.getdout();
                                     DataInputStream dIn = client.getdin();
-                                    String to_send = "delete" + "-" + "id_doesnt_matter" + "-" + getItem(position).getElection_name();  // sending all in one message
+                                    String to_send = "delete" + "-" + "Uid_doesnt_matter" + "-" + getItem(position).getElection_name();  // sending all in one message
                                     byte[] bytes = to_send.getBytes(); //sending the user id to server
                                     dOut.write(bytes);
                                     dOut.flush(); // send off the data

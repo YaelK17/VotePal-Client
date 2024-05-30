@@ -49,14 +49,12 @@ public class ResultsActivity extends AppCompatActivity {
         //receiving_results();
         names = new String[]{"yael", "batel", "rachel"};
         percentages_from_server = new String[]{"30", "40", "30"};
-
-        receiving_results();
-
-
         // Creating a method setData()
         // to set the text in text view and pie chart
 
-        setData( percentages_from_server, names);
+        //setData( percentages_from_server, names);
+        receiving_results();
+
 
     }
     private void setData(String[] percentages_from_server, String[] names)
@@ -113,18 +111,26 @@ public class ResultsActivity extends AppCompatActivity {
                     byte[] bytes_received = new byte[1000];
                     dIn.read(bytes_received); //receiving bytes message from server
                     s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    if (s.equals("no_votes")){
+                        names = new String[]{"yael", "batel", "rachel"};
+                        percentages_from_server = new String[]{"30", "40", "30"};
+                        setData( percentages_from_server, names);
+                    }
+                    else{
+                        String[] list_of_candidates_and_persetages = s.trim().split(",");  // now we have a list of candidates and percentages
 
-                    String[] list_of_candidates_and_persetages = s.trim().split(",");  // now we have a list of candidates and percentages
+                        // we know for sure the array will have even items because it has names and percentage for each name which we received from server
+                        int halfSize = list_of_candidates_and_persetages.length / 2;
 
-                    // we know for sure the array will have even items because it has names and percentage for each name which we received from server
-                    int halfSize = list_of_candidates_and_persetages.length / 2;
+                        names = new String[halfSize];
+                        percentages_from_server = new String[halfSize];
 
-                    names = new String[halfSize];
-                    percentages_from_server = new String[halfSize];
+                        // Copy elements from the original array to the first and second half arrays
+                        System.arraycopy(list_of_candidates_and_persetages, 0, names, 0, halfSize);
+                        System.arraycopy(list_of_candidates_and_persetages, halfSize, percentages_from_server, 0, halfSize);
+                        setData( percentages_from_server, names);
+                    }
 
-                    // Copy elements from the original array to the first and second half arrays
-                    System.arraycopy(list_of_candidates_and_persetages, 0, names, 0, halfSize);
-                    System.arraycopy(list_of_candidates_and_persetages, halfSize, percentages_from_server, 0, halfSize);
 
 
                 }

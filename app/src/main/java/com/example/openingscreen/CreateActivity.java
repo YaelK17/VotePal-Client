@@ -147,7 +147,7 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
                                 DataInputStream dIn = client.getdin();
 
                                 // first send- send "create" which is code word
-                                String to_send = "create" + "-" + user.getUid() + "-" + message_to_send.getText().toString() + "," + Get_candidate_names(candidate_names) + Get_candidate_pictures(candidate_pictures);
+                                String to_send = "create" + "-" + user.getUid() + "-" + message_to_send.getText().toString() + "," + Get_candidate_names(candidate_names) + Get_candidate_pictures(candidate_pictures) + selectedDatedisplay.getText().toString();
                                 byte[] bytes = to_send.getBytes(); //sending the user id to server
                                 dOut.write(bytes);
                                 dOut.flush(); // send off the data
@@ -204,7 +204,7 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
                             public void onDateSet(DatePicker view, int year,
                                                   int monthOfYear, int dayOfMonth) {
                                 // on below line we are setting date to our text view.
-                                selectedDatedisplay.setText(dayOfMonth + "-" + (monthOfYear + 1) + "-" + year);
+                                selectedDatedisplay.setText(dayOfMonth + "/" + (monthOfYear + 1) + "/" + year);
                                 is_date_selected = true;
                             }
                         },

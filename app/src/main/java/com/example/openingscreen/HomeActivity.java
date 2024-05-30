@@ -48,8 +48,22 @@ import java.net.Socket;
 import java.io.DataOutputStream;
 import java.io.DataInputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
+
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+
+import javax.crypto.Cipher;
+
+import android.util.Base64;
 
 
 public class HomeActivity extends AppCompatActivity  {
@@ -69,6 +83,8 @@ public class HomeActivity extends AppCompatActivity  {
     String selectedFilter = "all";
     String currentSearchText = "";
     String detail;
+    PublicKey publicKey;
+    PrivateKey privateKey;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -106,7 +122,6 @@ public class HomeActivity extends AppCompatActivity  {
         view_result_btn = findViewById(R.id.view_results);
         server_message = findViewById(R.id.servermessage);
 
-
         view_result_btn.setOnClickListener(new View.OnClickListener() {
             // asking for the results
             @Override
@@ -128,7 +143,6 @@ public class HomeActivity extends AppCompatActivity  {
         } else { //if user already logined
             email.setText(user.getEmail()); //the email is written in the home screen
 
-            //client(user.getUid(),"askingforoptions");
             Get_election_names();  // adds to the list the election names
             //sends the userid and also asks for options
         }
@@ -205,36 +219,6 @@ public class HomeActivity extends AppCompatActivity  {
 
         });
     }
-    private void client(String protocol_word, String info) {
-            Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    Client client = Client.getClient_instance();
-                    Socket socket = client.getSocket();
-                    DataOutputStream dOut = client.getdout();
-                    DataInputStream dIn = client.getdin();
-                    String to_send = protocol_word + "-" + user.getUid() + "-" + info;  // sending all in one message
-                    byte[] bytes = to_send.getBytes(); //sending the user id to server
-                    dOut.write(bytes);
-                    dOut.flush(); // send off the data
-                    String s ;
-                    byte[] bytes_received = new byte[1000];
-                    dIn.read(bytes_received); //receiving bytes message from server
-                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-
-                    if (protocol_word.equals("option")){
-                        detail = s; //converting bytes to string
-                    }
-
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        });
-        thread.start();
-    }
     private void Get_election_names() {
         //sends the userid and also asks for options
         // function receives the names from the server
@@ -250,6 +234,7 @@ public class HomeActivity extends AppCompatActivity  {
                     String to_Send = "askingforoptions" + "-" + user.getUid() + "-" + "";
 
 
+
                     byte[] bytes = to_Send.getBytes(); //sending the user id to asking for options
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
@@ -257,12 +242,24 @@ public class HomeActivity extends AppCompatActivity  {
                     byte[] bytes_received = new byte[1000];
 
                     dIn.read(bytes_received); //receiving bytes message from server
+                    String decryptedMessage = new String(bytes_received);
 
 
-                    String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-                    String[] election_names = s.trim().split(",");
-                    for (int i=0; i<election_names.length; i++){
-                        arrayList.add(new election_details(R.drawable.baseline_green_circle_24, election_names[i], "due date: 10/5/2020"));
+
+
+                    //String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    String[] election_names_and_due_dates = decryptedMessage.trim().split(",");
+                    for (int i=0; i<election_names_and_due_dates.length; i++){
+                        String[] name_and_due_date = election_names_and_due_dates[i].trim().split("-");
+                        String due_date_to_display = "due date: " + name_and_due_date[1];
+                        String name = name_and_due_date[0];
+
+                        if (name_and_due_date[2].equals("T")){  // means date has passed
+                            arrayList.add(new election_details(R.drawable.baseline_red_circle_24, name, due_date_to_display));
+                        }
+                        else {
+                            arrayList.add(new election_details(R.drawable.baseline_green_circle_24, name, due_date_to_display));
+                        }
                     }
 
                 }
@@ -327,7 +324,7 @@ public class HomeActivity extends AppCompatActivity  {
                     }
                 }
             }
-            if (election_details.getImage() == R.drawable.baseline_red_circle_24 && selectedFilter.equals("inactivefilte")) {
+            if (election_details.getImage() == R.drawable.baseline_red_circle_24 && selectedFilter.equals("inactive")) {
                 if(currentSearchText == "")
                 {
                     filteredelections.add(election_details);

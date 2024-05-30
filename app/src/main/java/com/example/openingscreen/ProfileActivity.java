@@ -122,31 +122,14 @@ public class ProfileActivity extends AppCompatActivity {
                     byte[] bytes_received = new byte[1000];
                     dIn.read(bytes_received); //receiving bytes message from server
                     s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-                    String[] list_of_both = s.trim().split(",");
-
-                    // todo change into spliting based on "-"
-                    // Calculate the middle index
-                    int middleIndex = list_of_both.length / 2;
-
-                    // Create two arrays to hold elements
-                    String[] firstHalf = new String[middleIndex];
-                    String[] secondHalf = new String[list_of_both.length - middleIndex];
-
-                    // Copy elements from the original array to the first half array
-                    for (int i = 0; i < middleIndex; i++) {
-                        firstHalf[i] = list_of_both[i];
+                    String[] list_of_both = s.trim().split("-"); // first index will be created and second voted for
+                    String[] created_list = list_of_both[0].trim().split(",");
+                    String[] voted_for_list = list_of_both[1].trim().split(",");
+                    for (int i = 0; i < created_list.length; i++) {
+                         arrayList_of_created_elections.add(new election_details(R.drawable.baseline_delete_24, created_list[i], "due date: 10/5/2020"));
                     }
-
-                    // Copy elements from the original array to the second half array
-                    for (int i = middleIndex; i < list_of_both.length; i++) {
-                        secondHalf[i - middleIndex] = list_of_both[i];
-                    }
-
-                    for (int i = 0; i < firstHalf.length; i++) {
-                         arrayList_of_created_elections.add(new election_details(R.drawable.baseline_delete_24, firstHalf[i], "due date: 10/5/2020"));
-                    }
-                    for (int i = 0; i < secondHalf.length; i++) {
-                        arrayList_of_voted_elections.add(new election_details(R.drawable.baseline_voted_vi_circle_24, secondHalf[i], "due date: 10/5/2020"));
+                    for (int i = 0; i < voted_for_list.length; i++) {
+                        arrayList_of_voted_elections.add(new election_details(R.drawable.baseline_voted_vi_circle_24, voted_for_list[i], "due date: 10/5/2020"));
                     }
 
 
