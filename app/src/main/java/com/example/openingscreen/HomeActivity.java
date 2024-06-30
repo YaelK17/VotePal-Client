@@ -83,8 +83,6 @@ public class HomeActivity extends AppCompatActivity  {
     String selectedFilter = "all";
     String currentSearchText = "";
     String detail;
-    PublicKey publicKey;
-    PrivateKey privateKey;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -231,11 +229,23 @@ public class HomeActivity extends AppCompatActivity  {
                     DataInputStream dIn = client.getdin();
                     DataOutputStream dOut = client.getdout();
 
+//                    if (com.example.openingscreen.PublicKey.is_PublicKey_instance_null()){
+//                        byte[] publicKeyBytes = new byte[1000];
+//                        dIn.read(publicKeyBytes); // Read the bytes into the array
+//                        // Convert the received bytes into a PublicKey object
+//                        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+//                        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+//                        com.example.openingscreen.PublicKey.SetPublicKey(keyFactory.generatePublic(keySpec));
+//                    }
+//                    PublicKey publicKey1 = com.example.openingscreen.PublicKey.get_PublicKey_instance().getPublicKey();
+
+//
                     String to_Send = "askingforoptions" + "-" + user.getUid() + "-" + "";
 
 
 
                     byte[] bytes = to_Send.getBytes(); //sending the user id to asking for options
+                    //byte[] bytes = encrypt(to_Send, publicKey1);
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
 
@@ -269,6 +279,16 @@ public class HomeActivity extends AppCompatActivity  {
             }
         });
         thread.start();
+    }
+    public byte[] encrypt(String plaintext, PublicKey publicKey) {
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            return cipher.doFinal(plaintext.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     public void button_dialog_related(){
         bottomNavigationView = findViewById(R.id.bottomNavigationView);

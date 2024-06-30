@@ -27,23 +27,36 @@ public class Client {
 
 
     private Client() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        socket=new Socket("192.168.1.32", 1234);
+        socket=new Socket("192.168.1.29", 1234);
         dout = new DataOutputStream(socket.getOutputStream());
         din = new DataInputStream(socket.getInputStream());
-
-//        // Read the length of the public key bytes
-//        int publicKeyLength = din.readInt();
-//
-//        // Create a byte array to hold the public key bytes
-//        byte[] publicKeyBytes = new byte[publicKeyLength];
-//
-//        // Read the public key bytes
-//        din.readFully(publicKeyBytes);
+// Receive the public key bytes from the server
+//        byte[] publicKeyBytes = new byte[1000];
+//        din.read(publicKeyBytes); // Read the bytes into the array
 //
 //        // Convert the received bytes into a PublicKey object
 //        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 //        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
 //        publicKey = keyFactory.generatePublic(keySpec);
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try{
+//                    // Receive the public key bytes from the server
+//                    byte[] publicKeyBytes = new byte[1000];
+//                    din.read(publicKeyBytes); // Read the bytes into the array
+//
+//                     // Convert the received bytes into a PublicKey object
+//                    KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+//                    X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+//                    publicKey = keyFactory.generatePublic(keySpec);
+//                    }
+//                catch (Exception e){
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//        thread.start();
     }
 
     public static synchronized Client getClient_instance() throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -62,16 +75,7 @@ public class Client {
     public DataInputStream getdin(){
         return din;
     }
-//    private byte[] encrypt(String plaintext, PublicKey publicKey) {
-//        try {
-//            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
-//            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-//            return cipher.doFinal(plaintext.getBytes());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return null;
-//    }
+//    public  PublicKey getPublicKey(){return publicKey;}
 
 
     //DataOutputStream dOut = new DataOutputStream(socket.getOutputStream());

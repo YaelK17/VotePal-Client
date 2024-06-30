@@ -31,7 +31,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
 import java.util.ArrayList;
+
+import javax.crypto.Cipher;
 
 public class ProfileActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
@@ -114,8 +117,10 @@ public class ProfileActivity extends AppCompatActivity {
                     Socket socket = client.getSocket();
                     DataOutputStream dOut = client.getdout();
                     DataInputStream dIn = client.getdin();
+                    //PublicKey publicKey = client.getPublicKey();
                     String to_send = "profile" + "-" + user.getUid() + "-" + "";  // sending all in one message
-                    byte[] bytes = to_send.getBytes(); //sending the user id to server
+                    //byte[] bytes = encrypt(to_send, publicKey);
+                    byte[] bytes = to_send.getBytes();
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
                     String s ;
@@ -126,10 +131,10 @@ public class ProfileActivity extends AppCompatActivity {
                     String[] created_list = list_of_both[0].trim().split(",");
                     String[] voted_for_list = list_of_both[1].trim().split(",");
                     for (int i = 0; i < created_list.length; i++) {
-                         arrayList_of_created_elections.add(new election_details(R.drawable.baseline_delete_24, created_list[i], "due date: 10/5/2020"));
+                         arrayList_of_created_elections.add(new election_details(R.drawable.baseline_delete_24, created_list[i], "created by you"));
                     }
                     for (int i = 0; i < voted_for_list.length; i++) {
-                        arrayList_of_voted_elections.add(new election_details(R.drawable.baseline_voted_vi_circle_24, voted_for_list[i], "due date: 10/5/2020"));
+                        arrayList_of_voted_elections.add(new election_details(R.drawable.baseline_voted_vi_circle_24, voted_for_list[i], "you voted in this election"));
                     }
 
 
@@ -149,5 +154,15 @@ public class ProfileActivity extends AppCompatActivity {
 
         listView_voted_in.setAdapter(voted_electionAdapter);  // setting the adapter
 
+    }
+    public byte[] encrypt(String plaintext, PublicKey publicKey) {
+        try {
+            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
+            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            return cipher.doFinal(plaintext.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
