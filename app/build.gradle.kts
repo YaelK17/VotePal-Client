@@ -44,6 +44,8 @@ dependencies {
     implementation ("com.github.blackfizz:eazegraph:1.2.5l@aar")
     implementation ("com.nineoldandroids:library:2.4.0")
 
+
+
     
     implementation ("androidx.activity:activity:1.7.2")
     implementation ("com.github.bumptech.glide:glide:4.12.0")

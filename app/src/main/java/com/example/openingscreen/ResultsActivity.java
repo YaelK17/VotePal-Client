@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RadioButton;
@@ -19,6 +20,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class ResultsActivity extends AppCompatActivity {
     // Create the object of TextView of the candidates names
@@ -104,20 +109,27 @@ public class ResultsActivity extends AppCompatActivity {
                     DataOutputStream dOut = client.getdout();
                     DataInputStream dIn = client.getdin();
                     String to_send = "results" + "-" + "Uid_doesnt_matter" + "-" + info;  // sending all in one message
+                    //encryption
+                    String[] encryppted_m = encryptMessage(to_send);
+                    to_send = encryppted_m[0] + "!" + encryppted_m[1];
+
                     byte[] bytes = to_send.getBytes(); //sending the user id to server
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
-                    String s ;
                     byte[] bytes_received = new byte[1000];
                     dIn.read(bytes_received); //receiving bytes message from server
-                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-                    if (s.equals("no_votes")){
+                    //decryption
+                    String decryptedMessage = new String(bytes_received);
+                    String[] decryptedMessage_iv_and_m = decryptedMessage.trim().split("!");
+                    decryptedMessage = decryptMessage(decryptedMessage_iv_and_m[0], decryptedMessage_iv_and_m[1]);
+
+                    if (decryptedMessage.equals("no_votes")){
                         names = new String[]{"yael", "batel", "rachel"};
                         percentages_from_server = new String[]{"30", "40", "30"};
                         setData( percentages_from_server, names);
                     }
                     else{
-                        String[] list_of_candidates_and_persetages = s.trim().split(",");  // now we have a list of candidates and percentages
+                        String[] list_of_candidates_and_persetages = decryptedMessage.trim().split(",");  // now we have a list of candidates and percentages
 
                         // we know for sure the array will have even items because it has names and percentage for each name which we received from server
                         int halfSize = list_of_candidates_and_persetages.length / 2;
@@ -171,5 +183,44 @@ public class ResultsActivity extends AppCompatActivity {
             return true;
         });
 
+    }
+    public static String[] encryptMessage(String message) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] iv = getInitializationVector();
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+        byte[] encrypted = cipher.doFinal(message.getBytes());
+
+        // Use Android's Base64 to encode iv and encrypted bytes
+        String ivString = Base64.encodeToString(iv, Base64.DEFAULT);
+        String encryptedString = Base64.encodeToString(encrypted, Base64.DEFAULT);
+
+        return new String[]{ivString, encryptedString};
+    }
+
+    public static String decryptMessage(String iv, String encryptedText) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] ivBytes = Base64.decode(iv, Base64.DEFAULT);
+        byte[] encryptedBytes = Base64.decode(encryptedText, Base64.DEFAULT);
+
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+        byte[] decrypted = cipher.doFinal(encryptedBytes);
+
+        return new String(decrypted);
+    }
+
+    private static byte[] getInitializationVector() {
+        // Generate a random IV (Initialization Vector)
+        byte[] iv = new byte[16];
+        new java.security.SecureRandom().nextBytes(iv);
+        return iv;
     }
 }

@@ -15,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -47,6 +48,10 @@ import java.nio.charset.StandardCharsets;
 
 import java.util.Calendar;
 import android.app.DatePickerDialog;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class CreateActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener{
     Button creating;
@@ -148,16 +153,21 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
 
                                 // first send- send "create" which is code word
                                 String to_send = "create" + "-" + user.getUid() + "-" + message_to_send.getText().toString() + "," + Get_candidate_names(candidate_names) + Get_candidate_pictures(candidate_pictures) + selectedDatedisplay.getText().toString();
+                                //encryption
+                                String[] encryppted_m = encryptMessage(to_send);
+                                to_send = encryppted_m[0] + "!" + encryppted_m[1];
+
                                 byte[] bytes = to_send.getBytes(); //sending the user id to server
                                 dOut.write(bytes);
                                 dOut.flush(); // send off the data
 
-                                String s = "";
                                 byte[] bytes_received = new byte[100];
                                 dIn.read(bytes_received); //receiving bytes message from server
-                                s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                                String decryptedMessage = new String(bytes_received);
+                                String[] decryptedMessage_iv_and_m = decryptedMessage.trim().split("!");
+                                decryptedMessage = decryptMessage(decryptedMessage_iv_and_m[0], decryptedMessage_iv_and_m[1]);
 
-                                if (!s.equals("nameexists")){
+                                if (!decryptedMessage.equals("nameexists")){
                                     Toast.makeText(CreateActivity.this,"successfully created",Toast.LENGTH_SHORT).show();
                                 }
                                 else{
@@ -173,6 +183,10 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
                         }
                     });
                     thread.start();
+                    // moving back to home
+                    Intent intent = new Intent(CreateActivity.this, CreateActivity.class);
+                    startActivity(intent);
+                    finish();
                 }
 
             }
@@ -217,6 +231,45 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
             }
         });
 
+    }
+    public static String[] encryptMessage(String message) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] iv = getInitializationVector();
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+        byte[] encrypted = cipher.doFinal(message.getBytes());
+
+        // Use Android's Base64 to encode iv and encrypted bytes
+        String ivString = Base64.encodeToString(iv, Base64.DEFAULT);
+        String encryptedString = Base64.encodeToString(encrypted, Base64.DEFAULT);
+
+        return new String[]{ivString, encryptedString};
+    }
+
+    public static String decryptMessage(String iv, String encryptedText) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] ivBytes = Base64.decode(iv, Base64.DEFAULT);
+        byte[] encryptedBytes = Base64.decode(encryptedText, Base64.DEFAULT);
+
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+        byte[] decrypted = cipher.doFinal(encryptedBytes);
+
+        return new String(decrypted);
+    }
+
+    private static byte[] getInitializationVector() {
+        // Generate a random IV (Initialization Vector)
+        byte[] iv = new byte[16];
+        new java.security.SecureRandom().nextBytes(iv);
+        return iv;
     }
     public void button_dialog_related(){
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
@@ -329,7 +382,7 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
         // the function make that when clicked on add image it will add
         ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
                 registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
-                    // Callback is invoked after the user selects a media item or closes the
+                    // Callback is invoked after timageviewhe user selects a media item or closes the
                     // photo picker.
                     if (uri != null) {
                         imageview.setImageURI(uri);
@@ -362,12 +415,16 @@ public class CreateActivity extends AppCompatActivity implements AdapterView.OnI
             }
         }
         // todo check if the pics have changed
-
+        if (election_name.getText().toString().contains(" ") || election_name.getText().toString().contains("!")) {
+            Toast.makeText(CreateActivity.this, "election name is invalid", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         //check the election name was field
         if (election_name.getText().toString().matches("")) {
             // if the editext is empty
             Toast.makeText(CreateActivity.this, "You did not fill the election name", Toast.LENGTH_SHORT).show();
             return false;
+
         }
         return is_due_date_picked;  // return if also the due date was picked
     }

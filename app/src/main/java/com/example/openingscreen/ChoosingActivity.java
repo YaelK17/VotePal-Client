@@ -1,12 +1,19 @@
 package com.example.openingscreen;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +21,14 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.Manifest;
+
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,9 +36,18 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.net.URI;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class ChoosingActivity extends AppCompatActivity {
     Button send_choice;
@@ -98,13 +117,18 @@ public class ChoosingActivity extends AppCompatActivity {
                     DataInputStream dIn = client.getdin();
                     DataOutputStream dOut = client.getdout();
                     String to_send = "votefor" + "-" + user.getUid() + "-" + title_election_name.getText().toString() + "," + choice;
+                    //encryption
+                    String[] encryppted_m = encryptMessage(to_send);
+                    to_send = encryppted_m[0] + "!" + encryppted_m[1];
                     byte[] bytes = to_send.getBytes(); //sending all info to server
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
                     byte[] bytes_received = new byte[1000];
                     dIn.read(bytes_received); //receiving bytes message from server
-                    String s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-                    Toast.makeText(ChoosingActivity.this, s ,
+                    String decryptedMessage = new String(bytes_received);
+                    String[] decryptedMessage_iv_and_m = decryptedMessage.trim().split("!");
+                    decryptedMessage = decryptMessage(decryptedMessage_iv_and_m[0], decryptedMessage_iv_and_m[1]);
+                    Toast.makeText(ChoosingActivity.this, decryptedMessage ,
                             Toast.LENGTH_LONG).show();
                 }
                 catch (Exception e){
@@ -140,15 +164,21 @@ public class ChoosingActivity extends AppCompatActivity {
                     DataOutputStream dOut = client.getdout();
                     DataInputStream dIn = client.getdin();
                     String to_send = "option" + "-" + user.getUid() + "-" + info;  // sending all in one message
+                    //encryption
+                    String[] encryppted_m = encryptMessage(to_send);
+                    to_send = encryppted_m[0] + "!" + encryppted_m[1];
+
                     byte[] bytes = to_send.getBytes(); //sending the user id to server
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
-                    String s ;
                     byte[] bytes_received = new byte[1000];
                     dIn.read(bytes_received); //receiving bytes message from server
-                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
+                    String decryptedMessage = new String(bytes_received);
+                    String[] decryptedMessage_iv_and_m = decryptedMessage.trim().split("!");
+                    decryptedMessage = decryptMessage(decryptedMessage_iv_and_m[0], decryptedMessage_iv_and_m[1]);
 
-                    String[] list_of_candidate = s.trim().split(",");
+                    String[] list_of_pics_and_candidates =  decryptedMessage.trim().split("-");
+                    String[] list_of_candidate = list_of_pics_and_candidates[0].trim().split(",");
                     title_election_name.setText(list_of_candidate[0]); // sets the title to be name of election
                     list_of_candidate = RemoveFirstElement(list_of_candidate); // removes the name of the election
                     for (int i = 0; i<list_of_candidate.length; i++){
@@ -160,6 +190,37 @@ public class ChoosingActivity extends AppCompatActivity {
                         photos[i].setVisibility(View.GONE);
                     }
 
+                    String[] list_of_pics =  list_of_pics_and_candidates[1].trim().split(",");
+                    for (int i = 0; i<list_of_pics.length; i++){
+                        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            // Permission is not granted
+                            // Request the permission
+
+                            ActivityCompat.requestPermissions(ChoosingActivity.this,
+                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                                    123);
+                        }
+                        else {
+                            try {
+                                Uri urii = Uri.parse(list_of_pics[i]);
+                                photos[i].setImageURI(urii);
+                            } catch (NullPointerException | IllegalArgumentException e) {
+                                e.printStackTrace();
+                            }
+                        }
+//                        Glide.with(getApplicationContext())
+//                                .load(Uri.parse(list_of_pics[i]))
+//                                .diskCacheStrategy(DiskCacheStrategy.NONE) // Optional, if you don't want to cache the image
+//                                .skipMemoryCache(true) // Optional, if you want to load the image from scratch every time
+//                                .into(photos[i]);
+//                        InputStream imageStream = getContentResolver().openInputStream(Uri.parse(list_of_pics[i]));
+//
+//                        Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+//
+//                        photos[i].setImageBitmap(selectedImage);
+                    }
+
                 }
                 catch (Exception e){
                     e.printStackTrace();
@@ -168,6 +229,45 @@ public class ChoosingActivity extends AppCompatActivity {
         });
         thread.start();
 
+    }
+    public static String[] encryptMessage(String message) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] iv = getInitializationVector();
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+        byte[] encrypted = cipher.doFinal(message.getBytes());
+
+        // Use Android's Base64 to encode iv and encrypted bytes
+        String ivString = Base64.encodeToString(iv, Base64.DEFAULT);
+        String encryptedString = Base64.encodeToString(encrypted, Base64.DEFAULT);
+
+        return new String[]{ivString, encryptedString};
+    }
+
+    public static String decryptMessage(String iv, String encryptedText) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] ivBytes = Base64.decode(iv, Base64.DEFAULT);
+        byte[] encryptedBytes = Base64.decode(encryptedText, Base64.DEFAULT);
+
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+        byte[] decrypted = cipher.doFinal(encryptedBytes);
+
+        return new String(decrypted);
+    }
+
+    private static byte[] getInitializationVector() {
+        // Generate a random IV (Initialization Vector)
+        byte[] iv = new byte[16];
+        new java.security.SecureRandom().nextBytes(iv);
+        return iv;
     }
 
     public void button_dialog_related(){

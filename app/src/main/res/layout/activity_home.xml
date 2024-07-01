@@ -58,7 +58,7 @@
     </LinearLayout>
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="320dp"
+        android:layout_height="440dp"
         android:id="@+id/list_item"
         android:layout_margin="2dp">
     </ListView>
@@ -68,7 +68,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/email"
-        android:textSize="30sp"
+        android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -76,6 +76,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="view results"
+        android:visibility="gone"
         android:id="@+id/view_results"
         android:textSize="20sp"
 
@@ -87,6 +88,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:hint="@string/servermessage"
+        android:visibility="gone"
         android:textColorHint="@color/black"
         android:id="@+id/servermessage"
         android:textSize="20sp"

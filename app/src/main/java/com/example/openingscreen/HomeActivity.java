@@ -62,7 +62,11 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 import javax.crypto.Cipher;
-
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import android.util.Base64;
 
 
@@ -242,6 +246,10 @@ public class HomeActivity extends AppCompatActivity  {
 //
                     String to_Send = "askingforoptions" + "-" + user.getUid() + "-" + "";
 
+                    //encryption
+                    String[] encryppted_m = encryptMessage(to_Send);
+                    to_Send = encryppted_m[0] + "!" + encryppted_m[1];
+
 
 
                     byte[] bytes = to_Send.getBytes(); //sending the user id to asking for options
@@ -253,7 +261,8 @@ public class HomeActivity extends AppCompatActivity  {
 
                     dIn.read(bytes_received); //receiving bytes message from server
                     String decryptedMessage = new String(bytes_received);
-
+                    String[] decryptedMessage_iv_and_m = decryptedMessage.trim().split("!");
+                    decryptedMessage = decryptMessage(decryptedMessage_iv_and_m[0], decryptedMessage_iv_and_m[1]);
 
 
 
@@ -279,16 +288,44 @@ public class HomeActivity extends AppCompatActivity  {
             }
         });
         thread.start();
+    }public static String[] encryptMessage(String message) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] iv = getInitializationVector();
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+        byte[] encrypted = cipher.doFinal(message.getBytes());
+
+        // Use Android's Base64 to encode iv and encrypted bytes
+        String ivString = Base64.encodeToString(iv, Base64.DEFAULT);
+        String encryptedString = Base64.encodeToString(encrypted, Base64.DEFAULT);
+
+        return new String[]{ivString, encryptedString};
     }
-    public byte[] encrypt(String plaintext, PublicKey publicKey) {
-        try {
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            return cipher.doFinal(plaintext.getBytes());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+
+    public static String decryptMessage(String iv, String encryptedText) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] ivBytes = Base64.decode(iv, Base64.DEFAULT);
+        byte[] encryptedBytes = Base64.decode(encryptedText, Base64.DEFAULT);
+
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+        byte[] decrypted = cipher.doFinal(encryptedBytes);
+
+        return new String(decrypted);
+    }
+
+    private static byte[] getInitializationVector() {
+        // Generate a random IV (Initialization Vector)
+        byte[] iv = new byte[16];
+        new java.security.SecureRandom().nextBytes(iv);
+        return iv;
     }
     public void button_dialog_related(){
         bottomNavigationView = findViewById(R.id.bottomNavigationView);

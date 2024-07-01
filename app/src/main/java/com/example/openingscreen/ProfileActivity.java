@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Base64;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,6 +36,8 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 
 import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 public class ProfileActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
@@ -119,15 +122,22 @@ public class ProfileActivity extends AppCompatActivity {
                     DataInputStream dIn = client.getdin();
                     //PublicKey publicKey = client.getPublicKey();
                     String to_send = "profile" + "-" + user.getUid() + "-" + "";  // sending all in one message
-                    //byte[] bytes = encrypt(to_send, publicKey);
+                    //encryption
+                    String[] encryppted_m = encryptMessage(to_send);
+                    to_send = encryppted_m[0] + "!" + encryppted_m[1];
+
                     byte[] bytes = to_send.getBytes();
                     dOut.write(bytes);
                     dOut.flush(); // send off the data
-                    String s ;
                     byte[] bytes_received = new byte[1000];
                     dIn.read(bytes_received); //receiving bytes message from server
-                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-                    String[] list_of_both = s.trim().split("-"); // first index will be created and second voted for
+
+                    //decryption
+                    String decryptedMessage = new String(bytes_received);
+                    String[] decryptedMessage_iv_and_m = decryptedMessage.trim().split("!");
+                    decryptedMessage = decryptMessage(decryptedMessage_iv_and_m[0], decryptedMessage_iv_and_m[1]);
+
+                    String[] list_of_both = decryptedMessage.trim().split("-"); // first index will be created and second voted for
                     String[] created_list = list_of_both[0].trim().split(",");
                     String[] voted_for_list = list_of_both[1].trim().split(",");
                     for (int i = 0; i < created_list.length; i++) {
@@ -155,14 +165,43 @@ public class ProfileActivity extends AppCompatActivity {
         listView_voted_in.setAdapter(voted_electionAdapter);  // setting the adapter
 
     }
-    public byte[] encrypt(String plaintext, PublicKey publicKey) {
-        try {
-            Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
-            cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            return cipher.doFinal(plaintext.getBytes());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static String[] encryptMessage(String message) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] iv = getInitializationVector();
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+        byte[] encrypted = cipher.doFinal(message.getBytes());
+
+        // Use Android's Base64 to encode iv and encrypted bytes
+        String ivString = Base64.encodeToString(iv, Base64.DEFAULT);
+        String encryptedString = Base64.encodeToString(encrypted, Base64.DEFAULT);
+
+        return new String[]{ivString, encryptedString};
+    }
+
+    public static String decryptMessage(String iv, String encryptedText) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] ivBytes = Base64.decode(iv, Base64.DEFAULT);
+        byte[] encryptedBytes = Base64.decode(encryptedText, Base64.DEFAULT);
+
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+        byte[] decrypted = cipher.doFinal(encryptedBytes);
+
+        return new String(decrypted);
+    }
+
+    private static byte[] getInitializationVector() {
+        // Generate a random IV (Initialization Vector)
+        byte[] iv = new byte[16];
+        new java.security.SecureRandom().nextBytes(iv);
+        return iv;
     }
 }

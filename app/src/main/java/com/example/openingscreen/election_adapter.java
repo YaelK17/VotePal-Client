@@ -3,6 +3,7 @@ package com.example.openingscreen;
 import android.content.Context;
 
 import android.content.Intent;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,11 @@ import java.util.ArrayList;
 
 import android.content.DialogInterface;
 import androidx.appcompat.app.AlertDialog;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
 public class election_adapter extends ArrayAdapter<election_details>{
     private Context mcontext;
     private int mResource;
@@ -77,14 +83,19 @@ public class election_adapter extends ArrayAdapter<election_details>{
                                     DataOutputStream dOut = client.getdout();
                                     DataInputStream dIn = client.getdin();
                                     String to_send = "delete" + "-" + "Uid_doesnt_matter" + "-" + getItem(position).getElection_name();  // sending all in one message
+                                    //encryption
+                                    String[] encryppted_m = encryptMessage(to_send);
+                                    to_send = encryppted_m[0] + "!" + encryppted_m[1];
                                     byte[] bytes = to_send.getBytes(); //sending the user id to server
                                     dOut.write(bytes);
                                     dOut.flush(); // send off the data
                                     String s ;
                                     byte[] bytes_received = new byte[1000];
                                     dIn.read(bytes_received); //receiving bytes message from server
-                                    s = new String(bytes_received, StandardCharsets.UTF_8); //converting bytes to string
-                                    if (s.equals("success")){
+                                    String decryptedMessage = new String(bytes_received);
+                                    String[] decryptedMessage_iv_and_m = decryptedMessage.trim().split("!");
+                                    decryptedMessage = decryptMessage(decryptedMessage_iv_and_m[0], decryptedMessage_iv_and_m[1]);
+                                    if (decryptedMessage.equals("success")){
                                         Toast.makeText(mcontext, "deleted " + getItem(position).getElection_name(), Toast.LENGTH_SHORT).show();
 
                                     }
@@ -121,6 +132,45 @@ public class election_adapter extends ArrayAdapter<election_details>{
         }
 
         return convertView;
+    }
+    public static String[] encryptMessage(String message) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] iv = getInitializationVector();
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+        byte[] encrypted = cipher.doFinal(message.getBytes());
+
+        // Use Android's Base64 to encode iv and encrypted bytes
+        String ivString = Base64.encodeToString(iv, Base64.DEFAULT);
+        String encryptedString = Base64.encodeToString(encrypted, Base64.DEFAULT);
+
+        return new String[]{ivString, encryptedString};
+    }
+
+    public static String decryptMessage(String iv, String encryptedText) throws Exception {
+        String CLIENT_KEY = "PAQfYscxlOFsvGzz"; // Replace with your actual key
+        String ALGORITHM = "AES/CBC/PKCS5Padding";
+        byte[] ivBytes = Base64.decode(iv, Base64.DEFAULT);
+        byte[] encryptedBytes = Base64.decode(encryptedText, Base64.DEFAULT);
+
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        SecretKeySpec keySpec = new SecretKeySpec(CLIENT_KEY.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+        byte[] decrypted = cipher.doFinal(encryptedBytes);
+
+        return new String(decrypted);
+    }
+
+    private static byte[] getInitializationVector() {
+        // Generate a random IV (Initialization Vector)
+        byte[] iv = new byte[16];
+        new java.security.SecureRandom().nextBytes(iv);
+        return iv;
     }
 
 }
